@@ -14,4 +14,24 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="account.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transaction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transfer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="validation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>
