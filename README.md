@@ -109,13 +109,13 @@ The project follows a modular design where each major banking feature is separat
 ### Helen — Account System
 Responsible for user account creation, login system, password validation, and account management features.
 
-### Liana — Transactions
+### Inshal — Transactions
 Responsible for deposit, withdraw, balance display, and transaction history.
 
 ### Hassnain — Transfers
 Responsible for contact management and money transfer between users.
 
-### Inshal — File Handling & Stability
+### Inshal, Hassnain & Kim — File Handling & Stability
 Responsible for saving/loading data, input validation, error handling, and ensuring the system does not crash.
 
 ---
