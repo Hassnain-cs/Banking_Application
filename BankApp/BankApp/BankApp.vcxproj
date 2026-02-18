@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="account.h" />
     <ClInclude Include="file.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="transaction.h" />
     <ClInclude Include="transfer.h" />
     <ClInclude Include="validation.h" />
