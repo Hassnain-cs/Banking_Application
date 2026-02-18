@@ -142,13 +142,13 @@ timeline
              : File Structure Created
              : Input Validation Base
 
-    Early March : Account System Complete (Helen)
+    Early March : Account System Complete (Inshal)
 
     Mid March : Transaction System Complete (Liana)
 
     Mid–Late March : Transfer System Complete (Hassnain)
 
-    Late March : File Handling & Stability Complete (Inshal)
+    Late March : File Handling & Stability Complete (Kim, Inshal & Hassnain)
 
     Early April : Integration Testing (All)
 
