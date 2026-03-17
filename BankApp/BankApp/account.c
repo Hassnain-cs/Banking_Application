@@ -42,45 +42,29 @@ int addAccount(const Account* account) {
 }
 
 static int nextAccountNumber(void) {
-	int max = 10000;
-	int i;
-	for (i = 0; i < g_accountCount; i++) {
-		if (g_accounts[i].accountNumber > max) {
-			max = g_accounts[i].accountNumber;
-		}
+	int max = 100000;              // start range (so first becomes 100001)
+	for (int i = 0; i < g_accountCount; i++) {
+		if (g_accounts[i].accountNumber > max) max = g_accounts[i].accountNumber;
 	}
-	if (max >= INT_MAX) {
-		return max + 1;
-	}
+	return max + 1;
 }
 
 void createAccount(void) {
-	Account account;
-	memset(&account, 0, sizeof(Account));
+	Account account = { 0 };
 
 	printf("\n--- Create Account ---\n");
-
-	int newNumber = nextAccountNumber();
-	if (newNumber == -1) {
-		printf("Error: Maximum number of accounts reached.\n");
-		return;
-	}
-	account.accountNumber = newNumber;
-
 	readLine("Enter name: ", account.name, (int)sizeof(account.name));
 	readLine("Password: ", account.password, (int)sizeof(account.password));
 
+	account.accountNumber = nextAccountNumber();   // <-- important
 	account.balance = 0.0;
 	account.isActive = 1;
 
-	if (!addAccount(&account)) {
-		printf("Error: Could not create account. Please try again.\n");
-		return;
-	}
+	addAccount(&account);
 
 	printf("\nAccount created successfully! Your account number is: %d\n", account.accountNumber);
-
 }
+
 	int login(void) {
 		const int MAX_LOGIN_ATTEMPTS = 3;
 
