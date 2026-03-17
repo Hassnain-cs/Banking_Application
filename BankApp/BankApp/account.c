@@ -49,58 +49,90 @@ static int nextAccountNumber(void) {
 	return max + 1;
 }
 
+static int g_rngSeeded = 0;
+
+static void seedRngOnce(void) {
+	if (!g_rngSeeded) {
+		srand((unsigned)time(NULL));
+		g_rngSeeded = 1;
+	}
+}
+
+static int generateRandomAccountNumber(void) {
+	seedRngOnce();
+
+	
+	for (int tries = 0; tries < 1000; tries++) {
+		int candidate = 100000 + (rand() % 900000);
+		if (findAccountByNumber(candidate) == NULL) {
+			return candidate;
+		}
+	}
+	return -1; 
+}
+
 void createAccount(void) {
-	Account account = { 0 };
+	Account account = (Account){ 0 };
 
 	printf("\n--- Create Account ---\n");
 	readLine("Enter name: ", account.name, (int)sizeof(account.name));
 	readLine("Password: ", account.password, (int)sizeof(account.password));
 
-	account.accountNumber = nextAccountNumber();   // <-- important
+	int accNum = generateRandomAccountNumber();
+	if (accNum == -1) {
+		printf("Failed to generate unique account number.\n");
+		return;
+	}
+
+	account.accountNumber = accNum;
 	account.balance = 0.0;
 	account.isActive = 1;
 
-	addAccount(&account);
+	if (!addAccount(&account)) {
+		printf("Failed to create account.\n");
+		return;
+	}
 
 	printf("\nAccount created successfully! Your account number is: %d\n", account.accountNumber);
 }
 
-	int login(void) {
-		const int MAX_LOGIN_ATTEMPTS = 3;
+int login(void) {
+	const int MAX_LOGIN_ATTEMPTS = 3;
 
-		if (g_accountCount <= 0) {
-			printf("\nNo accounts available. Please create an account first.\n");
-			return -1;
-		}
-
-		int attempt;
-		for (attempt = 1; attempt <= MAX_LOGIN_ATTEMPTS; attempt++) {
-			printf("\n--- Login (Attempt %d of %d) ---\n", attempt, MAX_LOGIN_ATTEMPTS);
-			int accNum = getIntInRange("Enter account number: ", 1, INT_MAX);
-
-			char password[MAX_PASSWORD];
-			readLine("Enter password: ", password, (int)sizeof(password));
-
-			Account* account = findAccountByNumber(accNum);
-			if (!account) {
-				printf("Invalid account number. Please try again.\n");
-				continue;
-			}
-
-			if (!account->isActive) {
-				printf("This account is inactive. Please contact support.\n");
-				continue;
-			}
-
-			if(strcmp(account->password, password) != 0) {
-		
-				printf("Incorrect password. Please try again.\n");
-			}
-
-			g_currentSessionAccountNumber = account->accountNumber;
-			return account->accountNumber;
-		}
-
-		printf("\nMaximum login attempts reached. Please try again later.\n");
+	if (g_accountCount <= 0) {
+		printf("\nNo accounts available. Please create an account first.\n");
 		return -1;
 	}
+
+	int attempt;
+	for (attempt = 1; attempt <= MAX_LOGIN_ATTEMPTS; attempt++) {
+	printf("\n--- Login (Attempt %d of %d) ---\n", attempt, MAX_LOGIN_ATTEMPTS);
+	int accNum = getIntInRange("Enter account number: ", 1, INT_MAX);
+
+	char password[MAX_PASSWORD];
+	readLine("Enter password: ", password, (int)sizeof(password));
+
+	Account* account = findAccountByNumber(accNum);
+	if (!account) {
+		printf("Invalid account number. Please try again.\n");
+		continue;
+	}
+
+	if (!account->isActive) {
+		printf("This account is inactive. Please contact support.\n");
+		continue;
+	}
+
+	if(strcmp(account->password, password) != 0) {
+		
+		printf("Incorrect password. Please try again.\n");
+	}
+
+		g_currentSessionAccountNumber = account->accountNumber;
+		return account->accountNumber;
+	}
+
+	printf("\nMaximum login attempts reached. Please try again later.\n");
+	return -1;
+	
+}
