@@ -31,18 +31,18 @@ int main(void) {
     while (running) {
         showWelcomeMenu();
 
-        int maxOption = (getCurrentSessionAccountNumber() != -1) ? 5 : 3;
-        int choice = getIntInRange("Select an option: ", 1, maxOption);
+        
+        int choice = getIntInRange("Select an option: ", 1, 3);
 
         switch (choice) {
         case 1: {
-           
+            
             createAccount();   
             pauseForUser();
             break;
         }
         case 2: {
-           
+            
             int accNum = login();
             if (accNum != -1) {
                 
@@ -55,7 +55,6 @@ int main(void) {
             break;
         }
         case 3: {
-            
             running = 0;
 
             saveAccountsToFile();
@@ -89,6 +88,7 @@ int main(void) {
         }
 
         default:
+
             printf("\nInvalid option.\n");
             pauseForUser();
             break;
@@ -101,7 +101,7 @@ int main(void) {
 static void showWelcomeMenu(void) {
     (void)system("cls"); 
     printf("=====================================\n");
-    printf("         BANKING SYSTEM (C)          \n");
+    printf("         BANKING SYSTEM          \n");
     printf("=====================================\n");
     printf("1) Create Account\n");
     printf("2) Login\n");
@@ -117,5 +117,5 @@ static void pauseForUser(void) {
     printf("\nPress ENTER to continue...");
     int c;
     while ((c = getchar()) != '\n' && c != EOF) { }
-    (void)getchar();
+   (void)getchar();
 }
