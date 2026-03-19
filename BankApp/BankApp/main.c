@@ -64,6 +64,29 @@ int main(void) {
             printf("\nGoodbye.\n");
             break;
         }
+
+        case 4: {
+            if (getCurrentSessionAccountNumber() == -1) {
+                printf("\nYou must login first.\n");
+            }
+            else {
+                deleteCurrentAccount(); 
+            }
+            pauseForUser();
+            break;
+        }
+        case 5: {
+            if (getCurrentSessionAccountNumber() == -1) {
+                printf("\nYou are not logged in.\n");
+            }
+            else {
+                logout();
+                printf("\nLogged out.\n");
+            }
+            pauseForUser();
+            break;
+        }
+
         default:
 
             printf("\nInvalid option.\n");
@@ -83,6 +106,10 @@ static void showWelcomeMenu(void) {
     printf("1) Create Account\n");
     printf("2) Login\n");
     printf("3) Exit\n");
+    if (getCurrentSessionAccountNumber() != -1) {
+        printf("4) Delete My Account\n");
+        printf("5) Logout\n");
+    }
     printf("=====================================\n");
 }
 

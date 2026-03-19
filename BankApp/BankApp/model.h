@@ -1,12 +1,8 @@
 #pragma once
-
-#pragma once
-
 #ifndef MODELS_H
 #define MODELS_H
 
-#include <time.h>   
-
+#include <time.h>
 
 #define MAX_NAME        25
 #define MAX_PASSWORD    16
@@ -27,7 +23,6 @@ typedef struct {
     int  isActive;
 } Account;
 
-
 typedef struct {
     int ownerAccountNumber;
     int contactAccountNumber;
@@ -39,8 +34,6 @@ typedef struct {
     TransactionType type;
     double amount;
     time_t timestamp;
-
-
     int otherAccountNumber;
 } Transaction;
 
