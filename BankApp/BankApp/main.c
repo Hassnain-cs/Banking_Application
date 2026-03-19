@@ -5,7 +5,6 @@
 #include "account.h"
 #include "file.h"
 
-// External module function prototypes (prevent implicit-declaration warnings)
 extern void loadAccountsFromFile(void);
 extern void loadTransactionsFromFile(void);
 extern void loadContactsFromFile(void);
@@ -18,13 +17,11 @@ extern int getIntInRange(const char *prompt, int min, int max);
 extern void createAccount(void);
 extern int login(void);
 
-// ---------- Prototypes ----------
 static void showWelcomeMenu(void);
 static void pauseForUser(void);
 
 int main(void) {
-    // 1) Load data at start (file module)
-    // If your file module uses different function names, update these calls.
+    
     loadAccountsFromFile();        
     loadTransactionsFromFile();   
     loadContactsFromFile();       
@@ -34,26 +31,21 @@ int main(void) {
     while (running) {
         showWelcomeMenu();
 
-        // 2) Safe menu choice (validation module)
-        // Use your own validation function name if different.
-        int choice = getIntInRange("Select an option: ", 1, 3);
+        int maxOption = (getCurrentSessionAccountNumber() != -1) ? 5 : 3;
+        int choice = getIntInRange("Select an option: ", 1, maxOption);
 
         switch (choice) {
         case 1: {
-            // Create Account
-            createAccount();   // account module
+           
+            createAccount();   
             pauseForUser();
             break;
         }
         case 2: {
-            // Login
-            // Recommended: login returns either:
-            // - accountNumber (int) on success
-            // - -1 on failure
+           
             int accNum = login();
             if (accNum != -1) {
-                // After login, you will call the logged-in menu (later issue)
-                // For now, just confirm success:
+                
                 printf("\nLogin successful. Account #%d\n", accNum);
             }
             else {
@@ -63,10 +55,9 @@ int main(void) {
             break;
         }
         case 3: {
-            // Exit
+            
             running = 0;
 
-            // 3) Save data at exit
             saveAccountsToFile();
             saveTransactionsToFile();
             saveContactsToFile();
@@ -74,8 +65,30 @@ int main(void) {
             printf("\nGoodbye.\n");
             break;
         }
+
+        case 4: {
+            if (getCurrentSessionAccountNumber() == -1) {
+                printf("\nYou must login first.\n");
+            }
+            else {
+                deleteCurrentAccount(); 
+            }
+            pauseForUser();
+            break;
+        }
+        case 5: {
+            if (getCurrentSessionAccountNumber() == -1) {
+                printf("\nYou are not logged in.\n");
+            }
+            else {
+                logout();
+                printf("\nLogged out.\n");
+            }
+            pauseForUser();
+            break;
+        }
+
         default:
-            // Should never happen because getIntInRange blocks invalid
             printf("\nInvalid option.\n");
             pauseForUser();
             break;
@@ -86,21 +99,23 @@ int main(void) {
 }
 
 static void showWelcomeMenu(void) {
-    (void)system("cls"); // Windows. If needed for mac/linux use "clear".
+    (void)system("cls"); 
     printf("=====================================\n");
     printf("         BANKING SYSTEM (C)          \n");
     printf("=====================================\n");
     printf("1) Create Account\n");
     printf("2) Login\n");
     printf("3) Exit\n");
+    if (getCurrentSessionAccountNumber() != -1) {
+        printf("4) Delete My Account\n");
+        printf("5) Logout\n");
+    }
     printf("=====================================\n");
 }
 
 static void pauseForUser(void) {
     printf("\nPress ENTER to continue...");
     int c;
-    /* clear leftover input */
     while ((c = getchar()) != '\n' && c != EOF) { }
-    /* consume the newline (if any) */
     (void)getchar();
 }
