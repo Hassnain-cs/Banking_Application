@@ -26,8 +26,8 @@ void createAccount(void);
 
 #define MAX_ACCOUNTS 1000
 
-extern Account g_accounts[MAX_ACCOUNTS];
-extern int g_accountCount;
+extern Account accounts[MAX_ACCOUNTS];
+extern int accountCount;
 
 int getCurrentSessionAccountNumber(void);
 void logout(void);
@@ -41,8 +41,8 @@ int login(void);
 
 #define MAX_ACCOUNTS 1000
 
-extern Account g_accounts[MAX_ACCOUNTS];
-extern int g_accountCount;
+extern Account accounts[MAX_ACCOUNTS];
+extern int accountCount;
 
 
 int getCurrentSessionAccountNumber(void);

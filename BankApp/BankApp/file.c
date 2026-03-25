@@ -60,8 +60,8 @@ void saveAccountsToFile(void) {
     if (!f) return;
 
     int i;
-    for (i = 0; i < g_accountCount; i++) {
-        const Account* a = &g_accounts[i];
+    for (i = 0; i < accountCount; i++) {
+        const Account* a = &accounts[i];
         fprintf(f, "%d|%s|%s|%.2f|%d\n",
             a->accountNumber,
             a->name,

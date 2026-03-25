@@ -32,7 +32,8 @@ int main(void) {
         showWelcomeMenu();
 
         
-        int choice = getIntInRange("Select an option: ", 1, 3);
+        int maxOption = (getCurrentSessionAccountNumber() != -1) ? 5 : 3;
+        int choice = getIntInRange("Select an option: ", 1, maxOption);;
 
         switch (choice) {
         case 1: {
@@ -42,16 +43,14 @@ int main(void) {
             break;
         }
         case 2: {
-            
-            int accNum = login();
-            if (accNum != -1) {
-                
-                printf("\nLogin successful. Account #%d\n", accNum);
+
+            if (login()) {
+                printf("\nLogin successful. Account #%d\n",
+                    getCurrentSessionAccountNumber());
             }
             else {
                 printf("\nLogin failed.\n");
             }
-            pauseForUser();
             break;
         }
         case 3: {
@@ -98,7 +97,7 @@ int main(void) {
     return 0;
 }
 
-static void showWelcomeMenu(void) {
+    static void showWelcomeMenu(void) {
     (void)system("cls"); 
     printf("=====================================\n");
     printf("         BANKING SYSTEM          \n");
