@@ -16,6 +16,14 @@ static void readLine(const char* prompt, char* buffer, size_t size);
 static int accountNumberExists(int accountNumber);
 static int isStrongPassword(const char* password);
 
+int addAccount(const Account* account) {
+    if (accountCount >= MAX_ACCOUNTS) {
+        return 0;
+    }
+    accounts[accountCount++] = *account;
+    return 1;
+}
+
 void createAccount(void) {
     if (accountCount >= MAX_ACCOUNTS) {
         printf("Maximum number of accounts reached.\n");
@@ -24,7 +32,7 @@ void createAccount(void) {
 
     Account newAccount;
     newAccount.accountNumber = generateAccountNumber();
-    newAccount.balance = 100.0; // default balance updated
+    newAccount.balance = 100.0;
 
     do {
         readLine("Enter account holder name: ", newAccount.name, sizeof(newAccount.name));
@@ -65,8 +73,12 @@ int login(void) {
     char password[50];
 
     printf("Enter account number: ");
-    fgets(line, sizeof(line), stdin);
-    sscanf(line, "%d", &accNum);
+    if (!fgets(line, sizeof(line), stdin)) return 0;
+
+    if (sscanf(line, "%d", &accNum) != 1) {
+        printf("Invalid account number.\n");
+        return 0;
+    }
 
     readLine("Enter password: ", password, sizeof(password));
 
@@ -158,6 +170,7 @@ static int accountNumberExists(int accountNumber) {
 
 static void readLine(const char* prompt, char* buffer, size_t size) {
     printf("%s", prompt);
-    fgets(buffer, size, stdin);
-    buffer[strcspn(buffer, "\n")] = 0;
+    if (fgets(buffer, size, stdin)) {
+        buffer[(int)strcspn(buffer, "\n")] = 0;
+    }
 }

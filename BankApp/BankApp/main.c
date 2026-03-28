@@ -35,7 +35,7 @@ int main(void) {
             if (!loggedIn) {
                 if (!login()) {
                     printf("Account not found. Create one? (1=Yes / 0=No): ");
-                    int opt; scanf("%d", &opt); getchar();
+                    int opt; scanf_s("%d", &opt); getchar();
                     if (opt == 1) createAccount();
                 }
             }
@@ -94,5 +94,6 @@ static void showMenu(void) {
 
 static void pauseForUser(void) {
     printf("\nPress ENTER to continue...");
-    while (getchar() != '\n');
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
