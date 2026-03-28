@@ -1,94 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "model.h"
-#include "validation.h"
+
 #include "account.h"
 #include "file.h"
+#include "validation.h"
 
-extern void loadAccountsFromFile(void);
-extern void loadTransactionsFromFile(void);
-extern void loadContactsFromFile(void);
-
-extern void saveAccountsToFile(void);
-extern void saveTransactionsToFile(void);
-extern void saveContactsToFile(void);
-
-extern int getIntInRange(const char *prompt, int min, int max);
-extern void createAccount(void);
-extern int login(void);
-
-static void showWelcomeMenu(void);
+static void showMenu(void);
 static void pauseForUser(void);
 
 int main(void) {
-    
-    loadAccountsFromFile();        
-    loadTransactionsFromFile();   
-    loadContactsFromFile();       
+
+    loadAccountsFromFile();
 
     int running = 1;
 
     while (running) {
-        showWelcomeMenu();
+        showMenu();
 
-        
-        int maxOption = (getCurrentSessionAccountNumber() != -1) ? 5 : 3;
-        int choice = getIntInRange("Select an option: ", 1, maxOption);;
+        int loggedIn = (getCurrentSessionAccountNumber() != -1);
+
+        int choice = loggedIn
+            ? getIntInRange("Select option: ", 1, 4)
+            : getIntInRange("Select option: ", 1, 3);
 
         switch (choice) {
-        case 1: {
-            
-            createAccount();   
+
+        case 1:
+            if (!loggedIn) createAccount();
+            else printf("Already logged in.\n");
             pauseForUser();
             break;
-        }
-        case 2: {
 
-            if (login()) {
-                printf("\nLogin successful. Account #%d\n",
-                    getCurrentSessionAccountNumber());
+        case 2:
+            if (!loggedIn) {
+                if (!login()) {
+                    printf("Account not found. Create one? (1=Yes / 0=No): ");
+                    int opt; scanf_s("%d", &opt); getchar();
+                    if (opt == 1) createAccount();
+                }
             }
             else {
-                printf("\nLogin failed.\n");
-            }
-            break;
-        }
-        case 3: {
-            running = 0;
-
-            saveAccountsToFile();
-            saveTransactionsToFile();
-            saveContactsToFile();
-
-            printf("\nGoodbye.\n");
-            break;
-        }
-
-        case 4: {
-            if (getCurrentSessionAccountNumber() == -1) {
-                printf("\nYou must login first.\n");
-            }
-            else {
-                deleteCurrentAccount(); 
+                printf("Already logged in.\n");
             }
             pauseForUser();
             break;
-        }
-        case 5: {
-            if (getCurrentSessionAccountNumber() == -1) {
-                printf("\nYou are not logged in.\n");
+
+        case 3:
+            if (!loggedIn) {
+                running = 0;
+                saveAccountsToFile();
+                printf("Goodbye.\n");
             }
             else {
                 logout();
-                printf("\nLogged out.\n");
+                printf("Logged out.\n");
             }
             pauseForUser();
             break;
-        }
 
-        default:
-
-            printf("\nInvalid option.\n");
+        case 4:
+            if (loggedIn) {
+                deleteCurrentAccount();
+            }
             pauseForUser();
             break;
         }
@@ -97,24 +70,30 @@ int main(void) {
     return 0;
 }
 
-    static void showWelcomeMenu(void) {
-    (void)system("cls"); 
-    printf("=====================================\n");
-    printf("         BANKING SYSTEM          \n");
-    printf("=====================================\n");
-    printf("1) Create Account\n");
-    printf("2) Login\n");
-    printf("3) Exit\n");
-    if (getCurrentSessionAccountNumber() != -1) {
-        printf("4) Delete My Account\n");
-        printf("5) Logout\n");
+static void showMenu(void) {
+    system("cls");
+
+    printf("=================================\n");
+    printf("        BANKING SYSTEM\n");
+    printf("=================================\n");
+
+    if (getCurrentSessionAccountNumber() == -1) {
+        printf("1) Create Account\n");
+        printf("2) Login\n");
+        printf("3) Exit\n");
     }
-    printf("=====================================\n");
+    else {
+        printf("1) (Disabled - Already Logged In)\n");
+        printf("2) (Disabled - Already Logged In)\n");
+        printf("3) Logout\n");
+        printf("4) Delete Account\n");
+    }
+
+    printf("=================================\n");
 }
 
 static void pauseForUser(void) {
     printf("\nPress ENTER to continue...");
     int c;
-    while ((c = getchar()) != '\n' && c != EOF) { }
-   (void)getchar();
+    while ((c = getchar()) != '\n' && c != EOF);
 }

@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "account.h"
 #include "model.h"
@@ -13,6 +14,15 @@ static int currentAccountIndex = -1;
 static int generateAccountNumber(void);
 static void readLine(const char* prompt, char* buffer, size_t size);
 static int accountNumberExists(int accountNumber);
+static int isStrongPassword(const char* password);
+
+int addAccount(const Account* account) {
+    if (accountCount >= MAX_ACCOUNTS) {
+        return 0;
+    }
+    accounts[accountCount++] = *account;
+    return 1;
+}
 
 void createAccount(void) {
     if (accountCount >= MAX_ACCOUNTS) {
@@ -22,38 +32,39 @@ void createAccount(void) {
 
     Account newAccount;
     newAccount.accountNumber = generateAccountNumber();
-    newAccount.balance = 0.0;
+    newAccount.balance = 100.0;
 
     do {
-        readLine("Enter account holder's name: ", newAccount.name, sizeof(newAccount.name));
-        if (strlen(newAccount.name) == 0) {
-            printf("Error: Name cannot be empty. Please try again.\n");
-        }
+        readLine("Enter account holder name: ", newAccount.name, sizeof(newAccount.name));
     } while (strlen(newAccount.name) == 0);
 
-    do {
-        readLine("Enter password: ", newAccount.password, sizeof(newAccount.password));
-        if (strlen(newAccount.password) == 0) {
-            printf("Error: Password cannot be empty. Please try again.\n");
-        }
-    } while (strlen(newAccount.password) == 0);
+    char password1[50], password2[50];
 
+    while (1) {
+        readLine("Enter password: ", password1, sizeof(password1));
+        readLine("Confirm password: ", password2, sizeof(password2));
+
+        if (strcmp(password1, password2) != 0) {
+            printf("Passwords do not match.\n");
+            continue;
+        }
+
+        if (!isStrongPassword(password1)) {
+            printf("Password must be at least 6 characters and contain letters and numbers.\n");
+            continue;
+        }
+
+        break;
+    }
+
+    strcpy(newAccount.password, password1);
     newAccount.isActive = 1;
 
     accounts[accountCount++] = newAccount;
 
-    printf("Account created successfully!\n");
+    printf("\nAccount created successfully.\n");
     printf("Account Number: %d\n", newAccount.accountNumber);
     printf("Starting Balance: $%.2f\n", newAccount.balance);
-}
-
-int addAccount(const Account* account) {
-    if (accountCount >= MAX_ACCOUNTS) {
-        return 0;
-    }
-
-    accounts[accountCount++] = *account;
-    return 1;
 }
 
 int login(void) {
@@ -65,31 +76,17 @@ int login(void) {
     if (!fgets(line, sizeof(line), stdin)) return 0;
 
     if (sscanf(line, "%d", &accNum) != 1) {
-        printf("Invalid input. Please enter a number.\n");
+        printf("Invalid account number.\n");
         return 0;
     }
 
-    do {
-        readLine("Enter password: ", password, sizeof(password));
-        if (strlen(password) == 0) {
-            printf("Error: Password cannot be empty. Please try again.\n");
-        }
-    } while (strlen(password) == 0);
-
-    int found = 0;
+    readLine("Enter password: ", password, sizeof(password));
 
     for (int i = 0; i < accountCount; i++) {
-        if (accounts[i].accountNumber == accNum) {
-            found = 1;
-
-            if (!accounts[i].isActive) {
-                printf("This account is deactivated.\n");
-                return 0;
-            }
-
+        if (accounts[i].accountNumber == accNum && accounts[i].isActive) {
             if (strcmp(accounts[i].password, password) == 0) {
                 currentAccountIndex = i;
-                printf("Login successful!\n");
+                printf("Login successful.\n");
                 return 1;
             }
             else {
@@ -99,37 +96,37 @@ int login(void) {
         }
     }
 
-    if (!found) {
-        printf("Account not found.\n");
-    }
-
+    printf("Account not found.\n");
     return 0;
 }
 
 void logout(void) {
     currentAccountIndex = -1;
-    printf("Logged out.\n");
 }
 
 int getCurrentSessionAccountNumber(void) {
-    if (currentAccountIndex == -1) {
-        return -1;
-    }
-
+    if (currentAccountIndex == -1) return -1;
     return accounts[currentAccountIndex].accountNumber;
 }
 
 int deleteCurrentAccount(void) {
     if (currentAccountIndex == -1) {
-        printf("No account is currently logged in.\n");
+        printf("No account logged in.\n");
         return 0;
     }
 
-    for (int i = currentAccountIndex; i < accountCount - 1; i++) {
-        accounts[i] = accounts[i + 1];
+    char password[50];
+    readLine("Enter password to confirm deletion: ", password, sizeof(password));
+
+    if (strcmp(accounts[currentAccountIndex].password, password) != 0) {
+        printf("Incorrect password. Deletion cancelled.\n");
+        return 0;
     }
 
-    accountCount--;
+    char reason[100];
+    readLine("Reason for deletion: ", reason, sizeof(reason));
+
+    accounts[currentAccountIndex].isActive = 0;
     currentAccountIndex = -1;
 
     printf("Account deleted successfully.\n");
@@ -138,41 +135,42 @@ int deleteCurrentAccount(void) {
 
 Account* findAccountByNumber(int accountNumber) {
     for (int i = 0; i < accountCount; i++) {
-        if (accounts[i].accountNumber == accountNumber) {
+        if (accounts[i].accountNumber == accountNumber && accounts[i].isActive) {
             return &accounts[i];
         }
     }
     return NULL;
 }
 
-static int generateAccountNumber(void) {
-    static int nextAccountNumber = 1000;
-    int candidate = nextAccountNumber;
+static int isStrongPassword(const char* password) {
+    int hasLetter = 0, hasDigit = 0;
 
-    while (accountNumberExists(candidate)) {
-        candidate++;
+    if (strlen(password) < 6) return 0;
+
+    for (int i = 0; password[i]; i++) {
+        if (isalpha(password[i])) hasLetter = 1;
+        if (isdigit(password[i])) hasDigit = 1;
     }
 
-    nextAccountNumber = candidate + 1;
-    return candidate;
+    return hasLetter && hasDigit;
+}
+
+static int generateAccountNumber(void) {
+    static int next = 1000;
+    while (accountNumberExists(next)) next++;
+    return next++;
 }
 
 static int accountNumberExists(int accountNumber) {
     for (int i = 0; i < accountCount; i++) {
-        if (accounts[i].accountNumber == accountNumber) {
-            return 1;
-        }
+        if (accounts[i].accountNumber == accountNumber) return 1;
     }
     return 0;
 }
 
 static void readLine(const char* prompt, char* buffer, size_t size) {
     printf("%s", prompt);
-
     if (fgets(buffer, size, stdin)) {
-        size_t len = strlen(buffer);
-        if (len > 0 && buffer[len - 1] == '\n') {
-            buffer[len - 1] = '\0';
-        }
+        buffer[(int)strcspn(buffer, "\n")] = 0;
     }
 }
