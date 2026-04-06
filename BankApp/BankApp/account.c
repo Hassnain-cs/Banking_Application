@@ -34,6 +34,7 @@ void createAccount(void) {
     newAccount.accountNumber = generateAccountNumber();
     newAccount.balance = 100.0;
 
+    // Name input validation
     do {
         readLine("Enter account holder name: ", newAccount.name, sizeof(newAccount.name));
     } while (strlen(newAccount.name) == 0);
@@ -42,15 +43,17 @@ void createAccount(void) {
 
     while (1) {
         readLine("Enter password: ", password1, sizeof(password1));
+
+        // Check strength FIRST
+        if (!isStrongPassword(password1)) {
+            printf("Password must be at least 6 characters and contain letters and numbers.\n");
+            continue;
+        }
+
         readLine("Confirm password: ", password2, sizeof(password2));
 
         if (strcmp(password1, password2) != 0) {
             printf("Passwords do not match.\n");
-            continue;
-        }
-
-        if (!isStrongPassword(password1)) {
-            printf("Password must be at least 6 characters and contain letters and numbers.\n");
             continue;
         }
 
