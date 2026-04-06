@@ -12,7 +12,10 @@
 static Contact contacts[MAX_CONTACTS];
 static int contactCount = 0;
 
-// Checks if contact already exists
+/*
+Checks if a contact already exists for a user.
+Returns 1 if exists, 0 if not found.
+*/
 static int contactExists(int owner, int target) {
     for (int i = 0; i < contactCount; i++) {
         if (contacts[i].ownerAccountNumber == owner &&
@@ -20,12 +23,13 @@ static int contactExists(int owner, int target) {
             return 1;
         }
     }
-    return -1;
+    return 0;
 }
 
-// ============================
-// ADD CONTACT
-// ============================
+/*
+Adds a new contact for the logged-in user.
+Requires a valid existing account number.
+*/
 void addContact(void) {
 
     int current = getCurrentSessionAccountNumber();
@@ -35,6 +39,7 @@ void addContact(void) {
     }
 
     int target;
+
     printf("Enter account number to add (0 to cancel): ");
 
     if (scanf_s("%d", &target) != 1) {
@@ -49,17 +54,20 @@ void addContact(void) {
         return;
     }
 
+    // Prevent self-add
     if (target == current) {
         printf("You cannot add yourself.\n");
         return;
     }
 
+    // Check if account exists in system
     Account* acc = findAccountByNumber(target);
     if (!acc) {
         printf("Account does not exist.\n");
         return;
     }
 
+    // Prevent duplicates
     if (contactExists(current, target)) {
         printf("Contact already exists.\n");
         return;
@@ -70,11 +78,13 @@ void addContact(void) {
         return;
     }
 
+    // Create contact entry
     Contact c;
     c.ownerAccountNumber = current;
     c.contactAccountNumber = target;
 
-    printf("Enter nickname: ");
+    // Ask nickname AFTER validation passes
+    printf("Enter nickname for this contact: ");
     fgets(c.nickname, sizeof(c.nickname), stdin);
     c.nickname[strcspn(c.nickname, "\n")] = 0;
 
@@ -83,9 +93,9 @@ void addContact(void) {
     printf("Contact added successfully.\n");
 }
 
-// ============================
-// SHOW CONTACTS
-// ============================
+/*
+Displays all contacts for current user
+*/
 void showContacts(void) {
 
     int current = getCurrentSessionAccountNumber();
@@ -97,9 +107,11 @@ void showContacts(void) {
 
     for (int i = 0; i < contactCount; i++) {
         if (contacts[i].ownerAccountNumber == current) {
+
             printf("Account: %d | Nickname: %s\n",
                 contacts[i].contactAccountNumber,
                 contacts[i].nickname);
+
             found = 1;
         }
     }
@@ -109,15 +121,16 @@ void showContacts(void) {
     }
 }
 
-// ============================
-// REMOVE CONTACT
-// ============================
+/*
+Removes a contact for current user
+*/
 void removeContact(void) {
 
     int current = getCurrentSessionAccountNumber();
     if (current == -1) return;
 
     int target;
+
     printf("Enter account number to remove (0 to cancel): ");
 
     if (scanf_s("%d", &target) != 1) {
@@ -137,7 +150,7 @@ void removeContact(void) {
         if (contacts[i].ownerAccountNumber == current &&
             contacts[i].contactAccountNumber == target) {
 
-            // Shift array to remove contact
+            // Shift array left to delete entry
             for (int j = i; j < contactCount - 1; j++) {
                 contacts[j] = contacts[j + 1];
             }
@@ -151,9 +164,9 @@ void removeContact(void) {
     printf("Contact not found.\n");
 }
 
-// ============================
-// E-TRANSFER SYSTEM
-// ============================
+/*
+Transfers money between two accounts
+*/
 void transferMoney(void) {
 
     int senderNum = getCurrentSessionAccountNumber();
@@ -189,11 +202,6 @@ void transferMoney(void) {
         return;
     }
 
-    if (sender->balance <= 0) {
-        printf("No balance available.\n");
-        return;
-    }
-
     double amount;
 
     while (1) {
@@ -224,7 +232,6 @@ void transferMoney(void) {
         break;
     }
 
-    // Perform transfer
     sender->balance -= amount;
     receiver->balance += amount;
 
