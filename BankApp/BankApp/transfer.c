@@ -1,84 +1,80 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "transfer.h"
 #include "account.h"
-#include "validation.h"
 
 #define MAX_CONTACTS 500
 
-// Stores all contacts
+// Stores all contacts in memory
 static Contact contacts[MAX_CONTACTS];
 static int contactCount = 0;
 
 // Checks if contact already exists
-static int contactExists(int ownerAcc, int contactAcc) {
+static int contactExists(int owner, int target) {
     for (int i = 0; i < contactCount; i++) {
-        if (contacts[i].ownerAccountNumber == ownerAcc &&
-            contacts[i].contactAccountNumber == contactAcc) {
+        if (contacts[i].ownerAccountNumber == owner &&
+            contacts[i].contactAccountNumber == target) {
             return 1;
         }
     }
     return 0;
 }
 
-// Adds a new contact with full validation
+// ============================
+// ADD CONTACT
+// ============================
 void addContact(void) {
 
-    int currentAcc = getCurrentSessionAccountNumber();
-
-    if (currentAcc == -1) {
+    int current = getCurrentSessionAccountNumber();
+    if (current == -1) {
         printf("No account logged in.\n");
         return;
     }
 
-    int targetAcc;
+    int target;
+    printf("Enter account number to add (0 to cancel): ");
 
-    printf("Enter account number to add as contact (0 to cancel): ");
-
-    // Input validation loop
-    while (scanf_s("%d", &targetAcc) != 1) {
-        printf("Invalid input. Enter a valid account number: ");
+    if (scanf_s("%d", &target) != 1) {
         while (getchar() != '\n');
+        printf("Invalid input.\n");
+        return;
     }
     while (getchar() != '\n');
 
-    // Allow user to cancel operation
-    if (targetAcc == 0) {
+    if (target == 0) {
         printf("Operation cancelled.\n");
         return;
     }
 
-    // Prevent adding self
-    if (targetAcc == currentAcc) {
-        printf("You cannot add yourself as a contact.\n");
+    if (target == current) {
+        printf("You cannot add yourself.\n");
         return;
     }
 
-    // Check if account exists
-    Account* acc = findAccountByNumber(targetAcc);
+    Account* acc = findAccountByNumber(target);
     if (!acc) {
         printf("Account does not exist.\n");
         return;
     }
 
-    // Prevent duplicate contacts
-    if (contactExists(currentAcc, targetAcc)) {
+    if (contactExists(current, target)) {
         printf("Contact already exists.\n");
         return;
     }
 
-    // Check storage limit
     if (contactCount >= MAX_CONTACTS) {
-        printf("Contact list is full.\n");
+        printf("Contact list full.\n");
         return;
     }
 
     Contact c;
-    c.ownerAccountNumber = currentAcc;
-    c.contactAccountNumber = targetAcc;
+    c.ownerAccountNumber = current;
+    c.contactAccountNumber = target;
 
-    printf("Enter nickname for contact: ");
+    printf("Enter nickname: ");
     fgets(c.nickname, sizeof(c.nickname), stdin);
     c.nickname[strcspn(c.nickname, "\n")] = 0;
 
@@ -87,22 +83,20 @@ void addContact(void) {
     printf("Contact added successfully.\n");
 }
 
-// Displays all contacts for current user
+// ============================
+// SHOW CONTACTS
+// ============================
 void showContacts(void) {
 
-    int currentAcc = getCurrentSessionAccountNumber();
-
-    if (currentAcc == -1) {
-        printf("No account logged in.\n");
-        return;
-    }
-
-    printf("\n--- YOUR CONTACTS ---\n");
+    int current = getCurrentSessionAccountNumber();
+    if (current == -1) return;
 
     int found = 0;
 
+    printf("\n--- CONTACTS ---\n");
+
     for (int i = 0; i < contactCount; i++) {
-        if (contacts[i].ownerAccountNumber == currentAcc) {
+        if (contacts[i].ownerAccountNumber == current) {
             printf("Account: %d | Nickname: %s\n",
                 contacts[i].contactAccountNumber,
                 contacts[i].nickname);
@@ -111,6 +105,128 @@ void showContacts(void) {
     }
 
     if (!found) {
-        printf("No contacts saved.\n");
+        printf("No contacts found.\n");
     }
+}
+
+// ============================
+// REMOVE CONTACT
+// ============================
+void removeContact(void) {
+
+    int current = getCurrentSessionAccountNumber();
+    if (current == -1) return;
+
+    int target;
+    printf("Enter account number to remove (0 to cancel): ");
+
+    if (scanf_s("%d", &target) != 1) {
+        while (getchar() != '\n');
+        printf("Invalid input.\n");
+        return;
+    }
+    while (getchar() != '\n');
+
+    if (target == 0) {
+        printf("Operation cancelled.\n");
+        return;
+    }
+
+    for (int i = 0; i < contactCount; i++) {
+
+        if (contacts[i].ownerAccountNumber == current &&
+            contacts[i].contactAccountNumber == target) {
+
+            // Shift array to remove contact
+            for (int j = i; j < contactCount - 1; j++) {
+                contacts[j] = contacts[j + 1];
+            }
+
+            contactCount--;
+            printf("Contact removed successfully.\n");
+            return;
+        }
+    }
+
+    printf("Contact not found.\n");
+}
+
+// ============================
+// E-TRANSFER SYSTEM
+// ============================
+void transferMoney(void) {
+
+    int senderNum = getCurrentSessionAccountNumber();
+    if (senderNum == -1) return;
+
+    Account* sender = findAccountByNumber(senderNum);
+    if (!sender) return;
+
+    int receiverNum;
+
+    printf("Enter receiver account number (0 to cancel): ");
+
+    if (scanf_s("%d", &receiverNum) != 1) {
+        while (getchar() != '\n');
+        printf("Invalid input.\n");
+        return;
+    }
+    while (getchar() != '\n');
+
+    if (receiverNum == 0) {
+        printf("Transfer cancelled.\n");
+        return;
+    }
+
+    if (receiverNum == senderNum) {
+        printf("Cannot transfer to yourself.\n");
+        return;
+    }
+
+    Account* receiver = findAccountByNumber(receiverNum);
+    if (!receiver) {
+        printf("Receiver not found.\n");
+        return;
+    }
+
+    if (sender->balance <= 0) {
+        printf("No balance available.\n");
+        return;
+    }
+
+    double amount;
+
+    while (1) {
+        printf("Enter amount (0 to cancel): ");
+
+        if (scanf_s("%lf", &amount) != 1) {
+            while (getchar() != '\n');
+            printf("Invalid input.\n");
+            continue;
+        }
+        while (getchar() != '\n');
+
+        if (amount == 0) {
+            printf("Transfer cancelled.\n");
+            return;
+        }
+
+        if (amount < 0) {
+            printf("Enter positive amount.\n");
+            continue;
+        }
+
+        if (amount > sender->balance) {
+            printf("Insufficient balance.\n");
+            continue;
+        }
+
+        break;
+    }
+
+    // Perform transfer
+    sender->balance -= amount;
+    receiver->balance += amount;
+
+    printf("Transfer successful: $%.2lf sent to %d\n", amount, receiverNum);
 }
