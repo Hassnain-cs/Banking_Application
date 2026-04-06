@@ -5,6 +5,7 @@
 #include "file.h"
 #include "validation.h"
 #include "transaction.h"
+#include "transfer.h"
 
 // Displays the main menu based on login state
 static void showMenu(void);
@@ -45,19 +46,17 @@ int main(void) {
                 while (getchar() != '\n');
             }
         }
+
         while (getchar() != '\n'); // clear buffer
 
         switch (choice) {
 
-            // =========================
-            // NOT LOGGED IN OPTIONS
-            // =========================
         case 1:
             if (!loggedIn) {
                 createAccount();
             }
             else {
-                transactionMenu(); // Option 1 becomes Transactions when logged in
+                transactionMenu();
             }
             pauseForUser();
             break;
@@ -77,7 +76,7 @@ int main(void) {
                 }
             }
             else {
-                deleteCurrentAccount(); // Option 2 becomes Delete Account
+                deleteCurrentAccount();
             }
             pauseForUser();
             break;
@@ -86,7 +85,6 @@ int main(void) {
             if (!loggedIn) {
                 running = 0;
 
-                // Save before exit
                 saveAccountsToFile();
                 saveTransactionsToFile();
 
@@ -103,7 +101,6 @@ int main(void) {
             if (loggedIn) {
                 running = 0;
 
-                // Save before exit
                 saveAccountsToFile();
                 saveTransactionsToFile();
 
@@ -161,45 +158,33 @@ static void transactionMenu(void) {
         printf("4) Transaction History\n");
         printf("5) Add Contact\n");
         printf("6) Show Contacts\n");
-        printf("7) Back to Main Menu\n");
+        printf("7) Remove Contact\n");
+        printf("8) Transfer Money\n");
+        printf("9) Back to Main Menu\n");
 
         int choice;
 
         printf("Choose an option: ");
 
-        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 7) {
-            printf("Enter a number between 1 and 7: ");
+        // FIXED RANGE (NOW 1–9)
+        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 9) {
+            printf("Enter a number between 1 and 9: ");
             while (getchar() != '\n');
         }
         while (getchar() != '\n');
 
         switch (choice) {
 
-        case 1:
-            deposit();
-            break;
+        case 1: deposit(); break;
+        case 2: withdraw(); break;
+        case 3: showBalance(); break;
+        case 4: showTransactionHistory(); break;
+        case 5: addContact(); break;
+        case 6: showContacts(); break;
+        case 7: removeContact(); break;
+        case 8: transferMoney(); break;
 
-        case 2:
-            withdraw();
-            break;
-
-        case 3:
-            showBalance();
-            break;
-
-        case 4:
-            showTransactionHistory();
-            break;
-
-        case 5:
-            addContact();
-            break;
-
-        case 6:
-            showContacts();
-            break;
-
-        case 7:
+        case 9:
             running = 0;
             break;
         }

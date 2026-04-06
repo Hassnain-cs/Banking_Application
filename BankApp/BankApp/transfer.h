@@ -4,10 +4,16 @@
 
 #include "model.h"
 
-// Add a new contact
+// Adds a new contact linked to current user
 void addContact(void);
 
-// Show saved contacts
+// Removes an existing contact
+void removeContact(void);
+
+// Displays saved contacts
 void showContacts(void);
+
+// Transfer money between users
+void transferMoney(void);
 
 #endif
