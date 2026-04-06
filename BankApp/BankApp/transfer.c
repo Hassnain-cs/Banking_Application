@@ -20,7 +20,7 @@ static int contactExists(int owner, int target) {
             return 1;
         }
     }
-    return 0;
+    return -1;
 }
 
 // ============================

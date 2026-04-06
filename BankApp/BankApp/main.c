@@ -161,7 +161,8 @@ static void transactionMenu(void) {
         printf("4) Transaction History\n");
         printf("5) Add Contact\n");
         printf("6) Show Contacts\n");
-        printf("7) Back to Main Menu\n");
+        printf("7) Remove Contact\n");
+        printf("8) Back to Main Menu\n");
 
         int choice;
 
@@ -199,7 +200,9 @@ static void transactionMenu(void) {
             showContacts();
             break;
 
-        case 7:
+        case 7: removeContact(); break;
+
+        case 8:
             running = 0;
             break;
         }
