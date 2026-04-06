@@ -3,20 +3,28 @@
 
 #include "account.h"
 #include "file.h"
+#include "validation.h"
 #include "transaction.h"
 
+// Displays the main menu based on login state
 static void showMenu(void);
+
+// Pauses execution so user can read output
 static void pauseForUser(void);
+
+// Handles transaction-related options
 static void transactionMenu(void);
 
 int main(void) {
 
+    // Load stored data at program start
     loadAccountsFromFile();
     loadTransactionsFromFile();
 
     int running = 1;
 
     while (running) {
+
         showMenu();
 
         int loggedIn = (getCurrentSessionAccountNumber() != -1);
@@ -24,6 +32,7 @@ int main(void) {
 
         printf("Select option: ");
 
+        // Input validation depending on login state
         if (!loggedIn) {
             while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 3) {
                 printf("Enter a number between 1 and 3: ");
@@ -31,21 +40,24 @@ int main(void) {
             }
         }
         else {
-            while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 3) {
-                printf("Enter a number between 1 and 3: ");
+            while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 4) {
+                printf("Enter a number between 1 and 4: ");
                 while (getchar() != '\n');
             }
         }
-        while (getchar() != '\n');
+        while (getchar() != '\n'); // clear buffer
 
         switch (choice) {
 
+            // =========================
+            // NOT LOGGED IN OPTIONS
+            // =========================
         case 1:
             if (!loggedIn) {
                 createAccount();
             }
             else {
-                transactionMenu();
+                transactionMenu(); // Option 1 becomes Transactions when logged in
             }
             pauseForUser();
             break;
@@ -53,6 +65,7 @@ int main(void) {
         case 2:
             if (!loggedIn) {
                 if (!login()) {
+
                     char opt;
                     printf("Account not found. Create one? (Y/N): ");
                     scanf_s(" %c", &opt, 1);
@@ -64,7 +77,7 @@ int main(void) {
                 }
             }
             else {
-                deleteCurrentAccount();
+                deleteCurrentAccount(); // Option 2 becomes Delete Account
             }
             pauseForUser();
             break;
@@ -72,13 +85,29 @@ int main(void) {
         case 3:
             if (!loggedIn) {
                 running = 0;
+
+                // Save before exit
                 saveAccountsToFile();
                 saveTransactionsToFile();
+
                 printf("Goodbye.\n");
             }
             else {
                 logout();
                 printf("Logged out.\n");
+            }
+            pauseForUser();
+            break;
+
+        case 4:
+            if (loggedIn) {
+                running = 0;
+
+                // Save before exit
+                saveAccountsToFile();
+                saveTransactionsToFile();
+
+                printf("Goodbye.\n");
             }
             pauseForUser();
             break;
@@ -88,6 +117,7 @@ int main(void) {
     return 0;
 }
 
+// Displays menu cleanly depending on login state
 static void showMenu(void) {
     system("cls");
 
@@ -104,50 +134,72 @@ static void showMenu(void) {
         printf("1) Transactions\n");
         printf("2) Delete Account\n");
         printf("3) Logout\n");
+        printf("4) Exit\n");
     }
 
     printf("=================================\n");
 }
 
+// Simple pause so user can read messages
 static void pauseForUser(void) {
     printf("\nPress ENTER to continue...");
-    while (getchar() != '\n');
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
+// Handles transaction menu navigation
 static void transactionMenu(void) {
+
     int running = 1;
 
     while (running) {
+
         printf("\n--- TRANSACTIONS ---\n");
         printf("1) Deposit\n");
         printf("2) Withdraw\n");
         printf("3) Show Balance\n");
         printf("4) Transaction History\n");
-        printf("5) Back to Main Menu\n");
+        printf("5) Add Contact\n");
+        printf("6) Show Contacts\n");
+        printf("7) Back to Main Menu\n");
 
         int choice;
+
         printf("Choose an option: ");
 
-        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 5) {
-            printf("Enter a number between 1 and 5: ");
+        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 7) {
+            printf("Enter a number between 1 and 7: ");
             while (getchar() != '\n');
         }
         while (getchar() != '\n');
 
         switch (choice) {
+
         case 1:
             deposit();
             break;
+
         case 2:
             withdraw();
             break;
+
         case 3:
             showBalance();
             break;
+
         case 4:
             showTransactionHistory();
             break;
+
         case 5:
+            addContact();
+            break;
+
+        case 6:
+            showContacts();
+            break;
+
+        case 7:
             running = 0;
             break;
         }
