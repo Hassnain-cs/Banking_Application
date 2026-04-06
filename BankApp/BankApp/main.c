@@ -159,14 +159,16 @@ static void transactionMenu(void) {
         printf("2) Withdraw\n");
         printf("3) Show Balance\n");
         printf("4) Transaction History\n");
-        printf("5) Back to Main Menu\n");
+        printf("5) Add Contact\n");
+        printf("6) Show Contacts\n");
+        printf("7) Back to Main Menu\n");
 
         int choice;
 
         printf("Choose an option: ");
 
-        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 5) {
-            printf("Enter a number between 1 and 5: ");
+        while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 7) {
+            printf("Enter a number between 1 and 7: ");
             while (getchar() != '\n');
         }
         while (getchar() != '\n');
@@ -190,7 +192,15 @@ static void transactionMenu(void) {
             break;
 
         case 5:
-            running = 0; // Exit transaction menu
+            addContact();
+            break;
+
+        case 6:
+            showContacts();
+            break;
+
+        case 7:
+            running = 0;
             break;
         }
     }
