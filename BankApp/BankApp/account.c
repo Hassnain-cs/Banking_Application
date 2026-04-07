@@ -539,7 +539,7 @@ HOW IT WORKS:
     - Writes each account in structured format
     - Closes file
 */
-void saveAccountsToFile(void) {
+void saveAccountsToFile(void) { //Line 542
 
     // Open file in write mode (creates file automatically if not exists)
     FILE* f = fopen(ACCOUNTS_FILE, "w");

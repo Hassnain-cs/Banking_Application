@@ -5,7 +5,7 @@
 #include "file.h"
 #include "account.h"
 
-static const char* ACCOUNTS_FILE = "accounts.txt";
+
 
 /*
 Loads account data from file and reconstructs Account structures
@@ -62,8 +62,7 @@ void loadAccountsFromFile(void) {
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
-        // FIX: read each address field separately
-        tok = strtok_s(NULL, "|", &ctx);
+        strncpy_s(a.streetNumber, sizeof(a.streetNumber), tok, _TRUNCATE);
         if (!tok) continue;
         strncpy_s(a.streetNumber, sizeof(a.streetNumber), tok, _TRUNCATE);
 
@@ -101,39 +100,7 @@ void loadAccountsFromFile(void) {
     fclose(f);
 }
 
-/*
-Saves all account data into file in structured format
-*/
-void saveAccountsToFile(void) {
 
-    FILE* f = fopen(ACCOUNTS_FILE, "w");
-    if (!f) return;
-
-    for (int i = 0; i < accountCount; i++) {
-
-        const Account* a = &accounts[i];
-
-        fprintf(f,
-            "%d|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%.2f|%d\n",
-            a->accountNumber,
-            a->firstName,
-            a->lastName,
-            a->birthDay,
-            a->birthMonth,
-            a->birthYear,
-            a->streetNumber,
-            a->streetName,
-            a->city,
-            a->country,
-            a->postalCode,
-            a->password,
-            a->balance,
-            a->isActive
-        );
-    }
-
-    fclose(f);
-}
 
 void loadTransactionsFromFile(void) {}
 void saveTransactionsToFile(void) {}

@@ -8,6 +8,8 @@
 
 #define MAX_ACCOUNTS 1000
 
+void saveAccountsToFile(void);
+
 extern Account accounts[MAX_ACCOUNTS];
 extern int accountCount;
 
