@@ -114,13 +114,6 @@ void saveAccountsToFile(void) {
         const Account* a = &accounts[i];
 
         fprintf(f,
-            "%d|%s|%s|%d|%d|%d|%s|%s|%.2f|%d\n",
-            a->accountNumber,
-            a->firstName,
-            a->lastName,
-            a->birthDay,
-            a->birthMonth,
-            a->birthYear,
             "%d|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%.2f|%d\n",
             a->accountNumber,
             a->firstName,
@@ -133,9 +126,6 @@ void saveAccountsToFile(void) {
             a->city,
             a->country,
             a->postalCode,
-            a->password,
-            a->balance,
-            a->isActive,
             a->password,
             a->balance,
             a->isActive
