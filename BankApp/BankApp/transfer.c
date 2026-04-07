@@ -5,6 +5,10 @@
 
 #include "transfer.h"
 #include "account.h"
+#include "transaction.h"
+
+extern Transaction transactions[];
+extern int transactionCount;
 
 #define MAX_CONTACTS 500
 
@@ -54,20 +58,17 @@ void addContact(void) {
         return;
     }
 
-    // Prevent self-add
     if (target == current) {
         printf("You cannot add yourself.\n");
         return;
     }
 
-    // Check if account exists in system
     Account* acc = findAccountByNumber(target);
     if (!acc) {
         printf("Account does not exist.\n");
         return;
     }
 
-    // Prevent duplicates
     if (contactExists(current, target)) {
         printf("Contact already exists.\n");
         return;
@@ -78,12 +79,10 @@ void addContact(void) {
         return;
     }
 
-    // Create contact entry
     Contact c;
     c.ownerAccountNumber = current;
     c.contactAccountNumber = target;
 
-    // Ask nickname AFTER validation passes
     printf("Enter nickname for this contact: ");
     fgets(c.nickname, sizeof(c.nickname), stdin);
     c.nickname[strcspn(c.nickname, "\n")] = 0;
@@ -150,7 +149,6 @@ void removeContact(void) {
         if (contacts[i].ownerAccountNumber == current &&
             contacts[i].contactAccountNumber == target) {
 
-            // Shift array left to delete entry
             for (int j = i; j < contactCount - 1; j++) {
                 contacts[j] = contacts[j + 1];
             }
@@ -235,5 +233,34 @@ void transferMoney(void) {
     sender->balance -= amount;
     receiver->balance += amount;
 
-    printf("Transfer successful: $%.2lf sent to %d\n", amount, receiverNum);
+    // OUTGOING transaction
+    Transaction t1;
+    t1.ownerAccountNumber = senderNum;
+    t1.type = TX_TRANSFER_OUT;
+    t1.amount = amount;
+    t1.timestamp = time(NULL);
+    t1.otherAccountNumber = receiverNum;
+
+    // INCOMING transaction
+    Transaction t2;
+    t2.ownerAccountNumber = receiverNum;
+    t2.type = TX_TRANSFER_IN;
+    t2.amount = amount;
+    t2.timestamp = time(NULL);
+    t2.otherAccountNumber = senderNum;
+
+    if (transactionCount < MAX_TRANSACTIONS) {
+        transactions[transactionCount++] = t1;
+        transactions[transactionCount++] = t2;
+    }
+
+    // IMPROVED OUTPUT (NAME + ACCOUNT NUMBER)
+    printf("Transfer successful: $%.2lf sent to %s %s (Acc: %d)\n",
+        amount,
+        receiver->firstName,
+        receiver->lastName,
+        receiverNum);
 }
+
+
+

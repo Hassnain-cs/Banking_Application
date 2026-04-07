@@ -2,75 +2,195 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
+#include <conio.h> // for _getch()
 
 #include "account.h"
-#include "model.h"
 
 int accountCount = 0;
 Account accounts[MAX_ACCOUNTS];
 
 static int currentAccountIndex = -1;
 
+// Function declarations
 static int generateAccountNumber(void);
 static void readLine(const char* prompt, char* buffer, size_t size);
+static void readPassword(const char* prompt, char* buffer, int maxLen);
 static int accountNumberExists(int accountNumber);
 static int isStrongPassword(const char* password);
+static int isValidDate(int d, int m, int y);
+static int calculateAge(int d, int m, int y);
+static void editMenu(Account* acc);
 
+
+// Add account to array
 int addAccount(const Account* account) {
-    if (accountCount >= MAX_ACCOUNTS) {
-        return 0;
-    }
+    if (accountCount >= MAX_ACCOUNTS) return 0;
     accounts[accountCount++] = *account;
     return 1;
 }
 
+
+/*
+Reads password input and masks characters with '*'
+Supports backspace handling
+*/
+static void readPassword(const char* prompt, char* buffer, int maxLen) {
+
+    printf("%s", prompt);
+
+    int i = 0;
+    char ch;
+
+    while (1) {
+        ch = _getch(); // read character without echo
+
+        if (ch == '\r') { // Enter key
+            buffer[i] = '\0';
+            printf("\n");
+            break;
+        }
+        else if (ch == '\b') { // Backspace
+            if (i > 0) {
+                i--;
+                printf("\b \b");
+            }
+        }
+        //  FIX: only allow printable characters
+        else if (isprint(ch) && i < maxLen - 1) {
+            buffer[i++] = ch;
+            printf("*");
+        }
+    }
+}
+
+
+/*
+Account creation
+*/
 void createAccount(void) {
+
     if (accountCount >= MAX_ACCOUNTS) {
         printf("Maximum number of accounts reached.\n");
         return;
     }
 
     Account newAccount;
+    memset(&newAccount, 0, sizeof(newAccount));
+
     newAccount.accountNumber = generateAccountNumber();
     newAccount.balance = 100.0;
+    newAccount.isActive = 1;
 
-    // Name input validation
-    do {
-        readLine("Enter account holder name: ", newAccount.name, sizeof(newAccount.name));
-    } while (strlen(newAccount.name) == 0);
-
-    char password1[50], password2[50];
+    readLine("Enter First Name: ", newAccount.firstName, sizeof(newAccount.firstName));
+    readLine("Enter Last Name: ", newAccount.lastName, sizeof(newAccount.lastName));
 
     while (1) {
-        readLine("Enter password: ", password1, sizeof(password1));
+        printf("Enter DOB (DD MM YYYY): ");
 
-        // Check strength FIRST
-        if (!isStrongPassword(password1)) {
-            printf("Password must be at least 6 characters and contain letters and numbers.\n");
+        //  Using scanf (simpler than scanf_s)
+        if (scanf("%d %d %d",
+            &newAccount.birthDay,
+            &newAccount.birthMonth,
+            &newAccount.birthYear) != 3) {
+
+            printf("Invalid format.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+        while (getchar() != '\n'); // clear buffer
+
+        if (!isValidDate(newAccount.birthDay, newAccount.birthMonth, newAccount.birthYear)) {
+            printf("Invalid date.\n");
             continue;
         }
 
-        readLine("Confirm password: ", password2, sizeof(password2));
-
-        if (strcmp(password1, password2) != 0) {
-            printf("Passwords do not match.\n");
+        if (calculateAge(newAccount.birthDay, newAccount.birthMonth, newAccount.birthYear) < 18) {
+            printf("Must be at least 18 years old.\n");
             continue;
         }
 
         break;
     }
 
-    strcpy(newAccount.password, password1);
-    newAccount.isActive = 1;
+    readLine("Enter Email Address: ", newAccount.email, sizeof(newAccount.email));
+    readLine("Enter Phone Number: ", newAccount.phone, sizeof(newAccount.phone));
+
+    printf("\n--- Address Details ---\n");
+    readLine("Street Number: ", newAccount.streetNumber, sizeof(newAccount.streetNumber));
+    readLine("Street Name  : ", newAccount.streetName, sizeof(newAccount.streetName));
+    readLine("City         : ", newAccount.city, sizeof(newAccount.city));
+    readLine("Country      : ", newAccount.country, sizeof(newAccount.country));
+    readLine("Postal Code  : ", newAccount.postalCode, sizeof(newAccount.postalCode));
+
+    while (1) {
+
+        printf("\n----- CONFIRM DETAILS -----\n");
+        printf("First Name: %s\n", newAccount.firstName);
+        printf("Last Name : %s\n", newAccount.lastName);
+        printf("DOB       : %02d/%02d/%04d\n",
+            newAccount.birthDay,
+            newAccount.birthMonth,
+            newAccount.birthYear);
+        printf("Email     : %s\n", newAccount.email);
+        printf("Phone     : %s\n", newAccount.phone);
+
+        //  FIX: Proper address printing (no acc->address)
+        printf("Address   : %s %s, %s, %s, %s\n",
+            newAccount.streetNumber,
+            newAccount.streetName,
+            newAccount.city,
+            newAccount.country,
+            newAccount.postalCode);
+
+        char confirm;
+        printf("Confirm details? (Y/N): ");
+        scanf(" %c", &confirm); //  using scanf
+        while (getchar() != '\n');
+
+        if (confirm == 'Y' || confirm == 'y') break;
+
+        editMenu(&newAccount);
+    }
+
+    // Password setup
+    char password[50], confirmPassword[50];
+
+    while (1) {
+        readPassword("Enter password: ", password, sizeof(password));
+
+        if (!isStrongPassword(password)) {
+            printf("Password must be at least 6 chars with letters & numbers.\n");
+            continue;
+        }
+
+        while (1) {
+            readPassword("Confirm password: ", confirmPassword, sizeof(confirmPassword));
+
+            if (strcmp(password, confirmPassword) != 0) {
+                printf("Passwords do not match.\n");
+                continue;
+            }
+            break;
+        }
+
+        break;
+    }
+
+    strcpy(newAccount.password, password);
 
     accounts[accountCount++] = newAccount;
 
     printf("\nAccount created successfully.\n");
     printf("Account Number: %d\n", newAccount.accountNumber);
-    printf("Starting Balance: $%.2f\n", newAccount.balance);
 }
 
+
+/*
+Login
+*/
 int login(void) {
+
     char line[100];
     int accNum;
     char password[50];
@@ -83,7 +203,7 @@ int login(void) {
         return 0;
     }
 
-    readLine("Enter password: ", password, sizeof(password));
+    readPassword("Enter password: ", password, sizeof(password));
 
     for (int i = 0; i < accountCount; i++) {
         if (accounts[i].accountNumber == accNum && accounts[i].isActive) {
@@ -103,6 +223,35 @@ int login(void) {
     return 0;
 }
 
+
+/*
+Delete account
+*/
+int deleteCurrentAccount(void) {
+
+    if (currentAccountIndex == -1) {
+        printf("No account logged in.\n");
+        return 0;
+    }
+
+    char password[50];
+    readPassword("Confirm password: ", password, sizeof(password));
+
+    if (strcmp(accounts[currentAccountIndex].password, password) != 0) {
+        printf("Incorrect password.\n");
+        return 0;
+    }
+
+    accounts[currentAccountIndex].isActive = 0;
+    currentAccountIndex = -1;
+
+    printf("Account deleted.\n");
+    return 1;
+}
+
+
+// Other helper functions (unchanged mostly)
+
 void logout(void) {
     currentAccountIndex = -1;
 }
@@ -110,30 +259,6 @@ void logout(void) {
 int getCurrentSessionAccountNumber(void) {
     if (currentAccountIndex == -1) return -1;
     return accounts[currentAccountIndex].accountNumber;
-}
-
-int deleteCurrentAccount(void) {
-    if (currentAccountIndex == -1) {
-        printf("No account logged in.\n");
-        return 0;
-    }
-
-    char password[50];
-    readLine("Enter password to confirm deletion: ", password, sizeof(password));
-
-    if (strcmp(accounts[currentAccountIndex].password, password) != 0) {
-        printf("Incorrect password. Deletion cancelled.\n");
-        return 0;
-    }
-
-    char reason[100];
-    readLine("Reason for deletion: ", reason, sizeof(reason));
-
-    accounts[currentAccountIndex].isActive = 0;
-    currentAccountIndex = -1;
-
-    printf("Account deleted successfully.\n");
-    return 1;
 }
 
 Account* findAccountByNumber(int accountNumber) {
@@ -158,6 +283,25 @@ static int isStrongPassword(const char* password) {
     return hasLetter && hasDigit;
 }
 
+static int isValidDate(int d, int m, int y) {
+    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return 0;
+    return 1;
+}
+
+static int calculateAge(int d, int m, int y) {
+    time_t t = time(NULL);
+    struct tm* now = localtime(&t);
+
+    int age = now->tm_year + 1900 - y;
+
+    if ((now->tm_mon + 1 < m) ||
+        (now->tm_mon + 1 == m && now->tm_mday < d)) {
+        age--;
+    }
+
+    return age;
+}
+
 static int generateAccountNumber(void) {
     static int next = 1000;
     while (accountNumberExists(next)) next++;
@@ -174,6 +318,58 @@ static int accountNumberExists(int accountNumber) {
 static void readLine(const char* prompt, char* buffer, size_t size) {
     printf("%s", prompt);
     if (fgets(buffer, size, stdin)) {
-        buffer[(int)strcspn(buffer, "\n")] = 0;
+        buffer[strcspn(buffer, "\n")] = 0;
+    }
+}
+
+
+/*
+EDIT MENU
+*/
+static void editMenu(Account* acc) {
+
+    int choice;
+
+    printf("\n--- EDIT MENU ---\n");
+    printf("1) First Name\n");
+    printf("2) Last Name\n");
+    printf("3) Date of Birth\n");
+    printf("4) Address\n");
+    printf("5) Back\n");
+
+    printf("Choose option: ");
+    scanf("%d", &choice); //  FIX: replaced scanf_s
+    while (getchar() != '\n');
+
+    switch (choice) {
+
+    case 1:
+        readLine("New First Name: ", acc->firstName, sizeof(acc->firstName));
+        break;
+
+    case 2:
+        readLine("New Last Name: ", acc->lastName, sizeof(acc->lastName));
+        break;
+
+    case 3:
+        printf("Enter DOB (DD MM YYYY): ");
+        scanf("%d %d %d",
+            &acc->birthDay,
+            &acc->birthMonth,
+            &acc->birthYear);
+        while (getchar() != '\n');
+        break;
+
+    case 4:
+        // FIX: replaced non-existent acc->address
+        readLine("Street Number: ", acc->streetNumber, sizeof(acc->streetNumber));
+        readLine("Street Name  : ", acc->streetName, sizeof(acc->streetName));
+        readLine("City         : ", acc->city, sizeof(acc->city));
+        readLine("Country      : ", acc->country, sizeof(acc->country));
+        readLine("Postal Code  : ", acc->postalCode, sizeof(acc->postalCode));
+        break;
+
+    case 5:
+        return;
     }
 }
