@@ -441,11 +441,13 @@ static void editMenu(Account* acc) {
     printf("1) First Name\n");
     printf("2) Last Name\n");
     printf("3) Date of Birth\n");
-    printf("4) Address\n");
-    printf("5) Back\n");
+    printf("4) Email\n");
+    printf("5) Phone\n");
+    printf("6) Address\n");
+    printf("7) Back\n");
 
     printf("Choose option: ");
-    scanf("%d", &choice); //  FIX: replaced scanf_s
+    scanf("%d", &choice);
     while (getchar() != '\n');
 
     switch (choice) {
@@ -460,23 +462,66 @@ static void editMenu(Account* acc) {
 
     case 3:
         printf("Enter DOB (DD MM YYYY): ");
-        scanf("%d %d %d",
-            &acc->birthDay,
-            &acc->birthMonth,
-            &acc->birthYear);
+        scanf("%d %d %d", &acc->birthDay, &acc->birthMonth, &acc->birthYear);
         while (getchar() != '\n');
         break;
 
     case 4:
-        // FIX: replaced non-existent acc->address
-        readLine("Street Number: ", acc->streetNumber, sizeof(acc->streetNumber));
-        readLine("Street Name  : ", acc->streetName, sizeof(acc->streetName));
-        readLine("City         : ", acc->city, sizeof(acc->city));
-        readLine("Country      : ", acc->country, sizeof(acc->country));
-        readLine("Postal Code  : ", acc->postalCode, sizeof(acc->postalCode));
+        while (1) {
+            readLine("New Email: ", acc->email, sizeof(acc->email));
+            if (!isValidEmail(acc->email)) {
+                printf("Invalid email.\n");
+                continue;
+            }
+            break;
+        }
         break;
 
     case 5:
+        while (1) {
+            readLine("New Phone (10 digits): ", acc->phone, sizeof(acc->phone));
+            if (!isValidPhone(acc->phone)) {
+                printf("Invalid phone.\n");
+                continue;
+            }
+            break;
+        }
+        break;
+
+    case 6: {
+        int sub;
+        printf("\n--- ADDRESS MENU ---\n");
+        printf("1) Street Number\n");
+        printf("2) Street Name\n");
+        printf("3) City\n");
+        printf("4) Province\n");
+        printf("5) Postal Code\n");
+        printf("6) Back\n");
+
+        scanf("%d", &sub);
+        while (getchar() != '\n');
+
+        switch (sub) {
+        case 1:
+            readLine("Street Number: ", acc->streetNumber, sizeof(acc->streetNumber));
+            break;
+        case 2:
+            readLine("Street Name: ", acc->streetName, sizeof(acc->streetName));
+            break;
+        case 3:
+            readLine("City: ", acc->city, sizeof(acc->city));
+            break;
+        case 4:
+            readLine("Province: ", acc->country, sizeof(acc->country));
+            break;
+        case 5:
+            readLine("Postal Code: ", acc->postalCode, sizeof(acc->postalCode));
+            break;
+        }
+        break;
+    }
+
+    case 7:
         return;
     }
 }
