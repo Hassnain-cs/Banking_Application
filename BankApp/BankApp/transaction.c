@@ -10,8 +10,11 @@
 static Transaction transactions[MAX_TRANSACTIONS];
 static int transactionCount = 0;
 
-// Handles depositing money into the logged-in account
+/*
+Handles depositing money and shows updated balance
+*/
 void deposit(void) {
+
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
 
@@ -20,7 +23,6 @@ void deposit(void) {
 
     double amount;
 
-    // Loop ensures valid input and allows user to cancel
     while (1) {
         printf("Enter amount to deposit (0 to cancel): ");
 
@@ -46,7 +48,6 @@ void deposit(void) {
 
     acc->balance += amount;
 
-    // Record transaction
     Transaction t;
     t.ownerAccountNumber = accNum;
     t.type = TX_DEPOSIT;
@@ -59,17 +60,20 @@ void deposit(void) {
     }
 
     printf("Deposited $%.2lf successfully.\n", amount);
+    printf("Updated Balance: $%.2lf\n", acc->balance);
 }
 
-// Handles withdrawing money with full validation and safe exit
+/*
+Handles withdrawal and shows updated balance
+*/
 void withdraw(void) {
+
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
 
     Account* acc = findAccountByNumber(accNum);
     if (!acc) return;
 
-    // Prevent entering loop if balance is zero
     if (acc->balance == 0) {
         printf("Your balance is $0. Withdrawal not possible.\n");
         return;
@@ -77,7 +81,6 @@ void withdraw(void) {
 
     double amount;
 
-    // Loop ensures valid input and allows exit
     while (1) {
         printf("Enter amount to withdraw (0 to cancel): ");
 
@@ -108,7 +111,6 @@ void withdraw(void) {
 
     acc->balance -= amount;
 
-    // Record transaction
     Transaction t;
     t.ownerAccountNumber = accNum;
     t.type = TX_WITHDRAW;
@@ -121,10 +123,14 @@ void withdraw(void) {
     }
 
     printf("Withdrew $%.2lf successfully.\n", amount);
+    printf("Updated Balance: $%.2lf\n", acc->balance);
 }
 
-// Displays current account balance
+/*
+Displays current account balance
+*/
 void showBalance(void) {
+
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
 
@@ -134,26 +140,30 @@ void showBalance(void) {
     printf("Current balance: $%.2lf\n", acc->balance);
 }
 
-// Displays transaction history for logged-in account
+/*
+Displays transaction history
+*/
 void showTransactionHistory(void) {
+
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
 
     printf("Transaction History:\n");
 
     for (int i = 0; i < transactionCount; i++) {
+
         if (transactions[i].ownerAccountNumber == accNum) {
 
             const char* typeStr;
-            if (transactions[i].type == TX_DEPOSIT) {
+
+            if (transactions[i].type == TX_DEPOSIT)
                 typeStr = "Deposit";
-            }
-            else if (transactions[i].type == TX_WITHDRAW) {
+            else if (transactions[i].type == TX_WITHDRAW)
                 typeStr = "Withdraw";
-            }
-            else {
-                typeStr = "Other";
-            }
+            else if (transactions[i].type == TX_TRANSFER_OUT)
+                typeStr = "Transfer Sent";
+            else
+                typeStr = "Transfer Received";
 
             printf("%s: $%.2lf\n", typeStr, transactions[i].amount);
         }
