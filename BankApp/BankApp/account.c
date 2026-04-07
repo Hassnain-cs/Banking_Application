@@ -525,3 +525,55 @@ static void editMenu(Account* acc) {
         return;
     }
 }
+
+
+/*
+FUNCTION: saveAccountsToFile
+PURPOSE:
+    Saves all accounts into a file so data persists after program closes
+
+HOW IT WORKS:
+    - Opens file in write mode
+    - Loops through all accounts
+    - Writes each account in structured format
+    - Closes file
+*/
+void saveAccountsToFile(void) {
+
+    // Open file in write mode (creates file automatically if not exists)
+    FILE* f = fopen(ACCOUNTS_FILE, "w");
+
+    // Safety check: if file can't open, don't crash program
+    if (!f) {
+        printf("Error: Could not save accounts.\n");
+        return;
+    }
+
+    // Loop through all accounts
+    for (int i = 0; i < accountCount; i++) {
+
+        Account* a = &accounts[i];
+
+        // Write account data in ONE LINE per account
+        fprintf(f,
+            "%d|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%.2f|%d\n",
+            a->accountNumber,
+            a->firstName,
+            a->lastName,
+            a->birthDay,
+            a->birthMonth,
+            a->birthYear,
+            a->streetNumber,
+            a->streetName,
+            a->city,
+            a->country,
+            a->postalCode,
+            a->password,
+            a->balance,
+            a->isActive
+        );
+    }
+
+    // Always close file after writing
+    fclose(f);
+}
