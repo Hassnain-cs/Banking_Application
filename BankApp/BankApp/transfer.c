@@ -5,6 +5,10 @@
 
 #include "transfer.h"
 #include "account.h"
+#include "transaction.h"
+
+extern Transaction transactions[];
+extern int transactionCount;
 
 #define MAX_CONTACTS 500
 
@@ -229,6 +233,27 @@ void transferMoney(void) {
     sender->balance -= amount;
     receiver->balance += amount;
 
+    // OUTGOING transaction
+    Transaction t1;
+    t1.ownerAccountNumber = senderNum;
+    t1.type = TX_TRANSFER_OUT;
+    t1.amount = amount;
+    t1.timestamp = time(NULL);
+    t1.otherAccountNumber = receiverNum;
+
+    // INCOMING transaction
+    Transaction t2;
+    t2.ownerAccountNumber = receiverNum;
+    t2.type = TX_TRANSFER_IN;
+    t2.amount = amount;
+    t2.timestamp = time(NULL);
+    t2.otherAccountNumber = senderNum;
+
+    if (transactionCount < MAX_TRANSACTIONS) {
+        transactions[transactionCount++] = t1;
+        transactions[transactionCount++] = t2;
+    }
+
     // IMPROVED OUTPUT (NAME + ACCOUNT NUMBER)
     printf("Transfer successful: $%.2lf sent to %s %s (Acc: %d)\n",
         amount,
@@ -236,3 +261,6 @@ void transferMoney(void) {
         receiver->lastName,
         receiverNum);
 }
+
+
+
