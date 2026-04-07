@@ -143,7 +143,7 @@ void showBalance(void) {
 /*
 Displays transaction history
 */
-void showTransactionHistory(void) { //LINE 146 
+void showTransactionHistory(void) { 
 
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
@@ -180,3 +180,4 @@ void showTransactionHistory(void) { //LINE 146
         }
     }
 }
+
