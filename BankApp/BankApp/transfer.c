@@ -249,9 +249,11 @@ void transferMoney(void) {
     t2.timestamp = time(NULL);
     t2.otherAccountNumber = senderNum;
 
-    if (transactionCount < MAX_TRANSACTIONS) {
+    if (transactionCount + 1 < MAX_TRANSACTIONS) {
         transactions[transactionCount++] = t1;
         transactions[transactionCount++] = t2;
+
+        saveTransactionsToFile(); 
     }
 
     // IMPROVED OUTPUT (NAME + ACCOUNT NUMBER)

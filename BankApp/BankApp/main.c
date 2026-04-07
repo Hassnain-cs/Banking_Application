@@ -26,14 +26,15 @@ int main(void) {
 
     while (running) {
 
-        showMenu();
-
         int loggedIn = (getCurrentSessionAccountNumber() != -1);
+
+        showMenu(); // FIX: no argument
+
         int choice;
 
         printf("Select option: ");
 
-        // Input validation depending on login state
+        // FIXED VALIDATION (MATCHES MENU EXACTLY)
         if (!loggedIn) {
             while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 3) {
                 printf("Enter a number between 1 and 3: ");
@@ -41,28 +42,40 @@ int main(void) {
             }
         }
         else {
-            while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 4) {
-                printf("Enter a number between 1 and 4: ");
+            while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 5) {
+                printf("Enter a number between 1 and 5: ");
                 while (getchar() != '\n');
             }
         }
 
         while (getchar() != '\n'); // clear buffer
 
-        switch (choice) {
+        // =============================
+        // NOT LOGGED IN
+        // =============================
+        if (!loggedIn) {
 
-        case 1:
-            if (!loggedIn) {
-                createAccount();
-            }
-            else {
-                transactionMenu();
-            }
-            pauseForUser();
-            break;
+            switch (choice) {
 
-        case 2:
-            if (!loggedIn) {
+            case 1: {
+                char confirm;
+
+                printf("Create new account? (Y/N): ");
+                scanf_s(" %c", &confirm, 1);
+                while (getchar() != '\n');
+
+                if (confirm == 'Y' || confirm == 'y') {
+                    createAccount();
+                }
+                else {
+                    printf("Operation cancelled.\n");
+                }
+
+                pauseForUser();
+                break;
+            }
+
+            case 2:
                 if (!login()) {
 
                     char opt;
@@ -74,40 +87,75 @@ int main(void) {
                         createAccount();
                     }
                 }
+                pauseForUser();
+                break;
+
+            case 3:
+                running = 0;
+
+                saveAccountsToFile();
+                saveTransactionsToFile();
+
+                printf("Goodbye.\n");
+                break;
+
+            default:
+                printf("Invalid choice.\n");
             }
-            else {
+        }
+
+        // =============================
+        // LOGGED IN
+        // =============================
+        else {
+
+            switch (choice) {
+
+            case 1:
+                transactionMenu();
+                break;
+
+            case 2:
+                editCurrentAccount();
+                pauseForUser();
+                break;
+
+            case 3:
                 deleteCurrentAccount();
-            }
-            pauseForUser();
-            break;
+                pauseForUser();
+                break;
 
-        case 3:
-            if (!loggedIn) {
+            case 4: {
+                char confirm;
+
+                printf("Are you sure you want to logout? (Y/N): ");
+                scanf_s(" %c", &confirm, 1);
+                while (getchar() != '\n');
+
+                if (confirm == 'Y' || confirm == 'y') {
+                    logout();
+                    printf("Logged out.\n");
+                }
+                else {
+                    printf("Logout cancelled.\n");
+                }
+
+                pauseForUser();
+                break;
+            }
+
+            case 5:
                 running = 0;
 
                 saveAccountsToFile();
                 saveTransactionsToFile();
 
                 printf("Goodbye.\n");
-            }
-            else {
-                logout();
-                printf("Logged out.\n");
-            }
-            pauseForUser();
-            break;
+                break;
 
-        case 4:
-            if (loggedIn) {
-                running = 0;
-
-                saveAccountsToFile();
-                saveTransactionsToFile();
-
-                printf("Goodbye.\n");
+            default:
+                printf("Invalid choice.\n");
             }
-            pauseForUser();
-            break;
         }
     }
 
@@ -129,9 +177,10 @@ static void showMenu(void) {
     }
     else {
         printf("1) Transactions\n");
-        printf("2) Delete Account\n");
-        printf("3) Logout\n");
-        printf("4) Exit\n");
+        printf("2) Edit Account\n");
+        printf("3) Delete Account\n");
+        printf("4) Logout\n");
+        printf("5) Exit\n");
     }
 
     printf("=================================\n");
@@ -166,7 +215,6 @@ static void transactionMenu(void) {
 
         printf("Choose an option: ");
 
-        // FIXED RANGE (NOW 1–9)
         while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 9) {
             printf("Enter a number between 1 and 9: ");
             while (getchar() != '\n');
