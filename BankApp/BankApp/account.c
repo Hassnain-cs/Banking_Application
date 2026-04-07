@@ -292,6 +292,7 @@ void createAccount(void) {
     strcpy(newAccount.password, password);
 
     accounts[accountCount++] = newAccount;
+    saveAccountsToFile(); // Immediately save after creating account
 
     printf("\nAccount created successfully.\n");
     printf("Account Number: %d\n", newAccount.accountNumber);
