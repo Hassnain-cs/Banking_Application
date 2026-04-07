@@ -112,11 +112,24 @@ int main(void) {
                 pauseForUser();
                 break;
 
-            case 4:
-                logout();
-                printf("Logged out.\n");
+            case 4: {
+                char confirm;
+
+                printf("Are you sure you want to logout? (Y/N): ");
+                scanf_s(" %c", &confirm, 1);
+                while (getchar() != '\n');
+
+                if (confirm == 'Y' || confirm == 'y') {
+                    logout();
+                    printf("Logged out.\n");
+                }
+                else {
+                    printf("Logout cancelled.\n");
+                }
+
                 pauseForUser();
                 break;
+            }
 
             case 5:
                 running = 0;
