@@ -15,6 +15,7 @@ extern int accountCount;
 
 void createAccount(void);
 int login(void);
+void editCurrentAccount(void);
 void logout(void);
 
 int getCurrentSessionAccountNumber(void);

@@ -336,6 +336,20 @@ int login(void) {
     return 0;
 }
 
+void editCurrentAccount(void) {
+
+    if (currentAccountIndex == -1) {
+        printf("No account logged in.\n");
+        return;
+    }
+
+    editMenu(&accounts[currentAccountIndex]);
+
+    saveAccountsToFile(); 
+
+    printf("Account updated successfully.\n");
+}
+
 
 /*
 Delete account

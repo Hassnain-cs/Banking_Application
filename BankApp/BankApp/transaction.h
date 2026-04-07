@@ -2,17 +2,17 @@
 #ifndef TRANSACTION_H
 #define TRANSACTION_H
 
-#include "model.h"   // MUST COME FIRST
-
-// Make transactions accessible in other files
-extern Transaction transactions[];
-extern int transactionCount;
+#include "model.h"   
 
 // Also expose max size
 #define MAX_TRANSACTIONS 1000
 
 // File to store all transaction history
 #define TRANSACTIONS_FILE "transactions.txt"
+
+// Make transactions accessible in other files
+extern Transaction transactions[];
+extern int transactionCount;
 
 // Function declarations
 void deposit(void);
