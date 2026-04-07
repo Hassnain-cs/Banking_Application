@@ -18,7 +18,37 @@ static void readLine(const char* prompt, char* buffer, size_t size);
 static void readPassword(const char* prompt, char* buffer, int maxLen);
 static int accountNumberExists(int accountNumber);
 static int isStrongPassword(const char* password);
-static int isValidDate(int d, int m, int y);
+// Proper date validation with month rules + leap year (THIS IS REAL VALIDATION NOW)
+static int isValidDate(int d, int m, int y) {
+
+    if (y < 1900 || m < 1 || m > 12 || d < 1)
+        return 0;
+
+    int daysInMonth;
+
+    switch (m) {
+    case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+        daysInMonth = 31;
+        break;
+
+    case 4: case 6: case 9: case 11:
+        daysInMonth = 30;
+        break;
+
+    case 2:
+        // Leap year logic (VERY IMPORTANT)
+        if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
+            daysInMonth = 29;
+        else
+            daysInMonth = 28;
+        break;
+
+    default:
+        return 0;
+    }
+
+    return d <= daysInMonth;
+}
 static int calculateAge(int d, int m, int y);
 static void editMenu(Account* acc);
 
@@ -281,11 +311,6 @@ static int isStrongPassword(const char* password) {
     }
 
     return hasLetter && hasDigit;
-}
-
-static int isValidDate(int d, int m, int y) {
-    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return 0;
-    return 1;
 }
 
 static int calculateAge(int d, int m, int y) {
