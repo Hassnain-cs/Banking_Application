@@ -49,6 +49,48 @@ static int isValidDate(int d, int m, int y) {
 
     return d <= daysInMonth;
 }
+
+// Simple but effective email validation
+static int isValidEmail(const char* email) {
+    const char* at = strchr(email, '@');
+    if (!at) return 0;
+
+    const char* dot = strchr(at, '.');
+    if (!dot) return 0;
+
+    if (at == email) return 0; // nothing before @
+
+    return 1;
+}
+
+// Phone must be exactly 10 digits
+static int isValidPhone(const char* phone) {
+    if (strlen(phone) != 10) return 0;
+
+    for (int i = 0; i < 10; i++) {
+        if (!isdigit(phone[i])) return 0;
+    }
+    return 1;
+}
+
+// Street number must be numeric
+static int isValidStreetNumber(const char* num) {
+    for (int i = 0; num[i]; i++) {
+        if (!isdigit(num[i])) return 0;
+    }
+    return 1;
+}
+
+// Canadian postal code: A1A1A1 format
+static int isValidPostalCode(const char* code) {
+    if (strlen(code) != 6) return 0;
+
+    for (int i = 0; i < 6; i++) {
+        if (i % 2 == 0 && !isalpha(code[i])) return 0;
+        if (i % 2 == 1 && !isdigit(code[i])) return 0;
+    }
+    return 1;
+}
 static int calculateAge(int d, int m, int y);
 static void editMenu(Account* acc);
 
