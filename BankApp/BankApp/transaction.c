@@ -57,6 +57,7 @@ void deposit(void) {
 
     if (transactionCount < MAX_TRANSACTIONS) {
         transactions[transactionCount++] = t;
+        saveTransactionsToFile(); // save immediately after deposit
     }
 
     printf("Deposited $%.2lf successfully.\n", amount);
@@ -120,6 +121,7 @@ void withdraw(void) {
 
     if (transactionCount < MAX_TRANSACTIONS) {
         transactions[transactionCount++] = t;
+        saveTransactionsToFile(); // save immediately after withdraw
     }
 
     printf("Withdrew $%.2lf successfully.\n", amount);
