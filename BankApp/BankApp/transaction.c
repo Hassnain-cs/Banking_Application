@@ -154,6 +154,8 @@ void showTransactionHistory(void) {
 
         if (transactions[i].ownerAccountNumber == accNum) {
 
+			Account* other = findAccountByNumber(transactions[i].otherAccountNumber);
+
             const char* typeStr;
 
             if (transactions[i].type == TX_DEPOSIT)
@@ -164,6 +166,14 @@ void showTransactionHistory(void) {
                 typeStr = "Transfer Sent";
             else
                 typeStr = "Transfer Received";
+
+            if (other) {
+                printf("%s: $%.2lf (%s %s - %d)\n",
+                    typeStr,
+                    transactions[i].amount,
+                    other->firstName,
+                    other->lastName,
+                    transactions[i].otherAccountNumber);
 
             printf("%s: $%.2lf\n", typeStr, transactions[i].amount);
         }
