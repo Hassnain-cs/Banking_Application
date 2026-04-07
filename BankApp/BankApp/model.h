@@ -7,6 +7,7 @@
 #define MAX_NAME        25
 #define MAX_PASSWORD    16
 #define MAX_NICKNAME    16
+#define MAX_ADDRESS     100
 
 typedef enum {
     TX_DEPOSIT = 1,
@@ -17,10 +18,20 @@ typedef enum {
 
 typedef struct {
     int  accountNumber;
-    char name[MAX_NAME];
+
+    char firstName[MAX_NAME];
+    char lastName[MAX_NAME];
+
+    int  birthDay;
+    int  birthMonth;
+    int  birthYear;
+
+    char address[MAX_ADDRESS];
+
     char password[MAX_PASSWORD];
     double balance;
     int  isActive;
+
 } Account;
 
 typedef struct {

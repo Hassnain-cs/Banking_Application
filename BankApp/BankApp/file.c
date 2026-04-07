@@ -5,17 +5,23 @@
 #include "file.h"
 #include "account.h"
 
-
 static const char* ACCOUNTS_FILE = "accounts.txt";
 
+/*
+Loads account data from file and reconstructs Account structures
+*/
 void loadAccountsFromFile(void) {
+
     FILE* f = fopen(ACCOUNTS_FILE, "r");
     if (!f) {
         return;
     }
 
     char line[512];
-    while (fgets(line, (int)sizeof(line), f)) {
+
+    while (fgets(line, sizeof(line), f)) {
+
+        // Remove newline characters
         size_t len = strlen(line);
         while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
             line[len - 1] = '\0';
@@ -27,15 +33,36 @@ void loadAccountsFromFile(void) {
         Account a;
         memset(&a, 0, sizeof(a));
 
-        // Tokenize by '|'
         char* ctx = NULL;
+
+        // Parse data in correct order
         char* tok = strtok_s(line, "|", &ctx);
         if (!tok) continue;
         a.accountNumber = atoi(tok);
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
-        strncpy_s(a.name, sizeof(a.name), tok, _TRUNCATE);
+        strncpy_s(a.firstName, sizeof(a.firstName), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.lastName, sizeof(a.lastName), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        a.birthDay = atoi(tok);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        a.birthMonth = atoi(tok);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        a.birthYear = atoi(tok);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.address, sizeof(a.address), tok, _TRUNCATE);
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
@@ -49,25 +76,37 @@ void loadAccountsFromFile(void) {
         if (!tok) continue;
         a.isActive = atoi(tok);
 
-        (void)addAccount(&a);
+        addAccount(&a);
     }
 
     fclose(f);
 }
 
+/*
+Saves all account data into file in structured format
+*/
 void saveAccountsToFile(void) {
+
     FILE* f = fopen(ACCOUNTS_FILE, "w");
     if (!f) return;
 
-    int i;
-    for (i = 0; i < accountCount; i++) {
+    for (int i = 0; i < accountCount; i++) {
+
         const Account* a = &accounts[i];
-        fprintf(f, "%d|%s|%s|%.2f|%d\n",
+
+        fprintf(f,
+            "%d|%s|%s|%d|%d|%d|%s|%s|%.2f|%d\n",
             a->accountNumber,
-            a->name,
+            a->firstName,
+            a->lastName,
+            a->birthDay,
+            a->birthMonth,
+            a->birthYear,
+            a->address,
             a->password,
             a->balance,
-            a->isActive);
+            a->isActive
+        );
     }
 
     fclose(f);

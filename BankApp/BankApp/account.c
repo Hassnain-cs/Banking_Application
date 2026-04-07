@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "account.h"
-#include "model.h"
 
 int accountCount = 0;
 Account accounts[MAX_ACCOUNTS];
@@ -15,59 +15,199 @@ static int generateAccountNumber(void);
 static void readLine(const char* prompt, char* buffer, size_t size);
 static int accountNumberExists(int accountNumber);
 static int isStrongPassword(const char* password);
+static int isValidDate(int d, int m, int y);
+static int calculateAge(int d, int m, int y);
+static void editMenu(Account* acc);
 
 int addAccount(const Account* account) {
-    if (accountCount >= MAX_ACCOUNTS) {
-        return 0;
-    }
+    if (accountCount >= MAX_ACCOUNTS) return 0;
     accounts[accountCount++] = *account;
     return 1;
 }
 
+/*
+Handles account creation with persistent editing flow
+*/
 void createAccount(void) {
+
     if (accountCount >= MAX_ACCOUNTS) {
         printf("Maximum number of accounts reached.\n");
         return;
     }
 
     Account newAccount;
+    memset(&newAccount, 0, sizeof(newAccount));
+
     newAccount.accountNumber = generateAccountNumber();
     newAccount.balance = 100.0;
+    newAccount.isActive = 1;
 
-    // Name input validation
-    do {
-        readLine("Enter account holder name: ", newAccount.name, sizeof(newAccount.name));
-    } while (strlen(newAccount.name) == 0);
+    // Initial input only once
+    readLine("Enter First Name: ", newAccount.firstName, sizeof(newAccount.firstName));
+    readLine("Enter Last Name: ", newAccount.lastName, sizeof(newAccount.lastName));
 
-    char password1[50], password2[50];
-
+    // DOB input with guidance
     while (1) {
-        readLine("Enter password: ", password1, sizeof(password1));
+        printf("Enter DOB (DD MM YYYY - use spaces): ");
 
-        // Check strength FIRST
-        if (!isStrongPassword(password1)) {
-            printf("Password must be at least 6 characters and contain letters and numbers.\n");
+        if (scanf_s("%d %d %d",
+            &newAccount.birthDay,
+            &newAccount.birthMonth,
+            &newAccount.birthYear) != 3) {
+
+            printf("Invalid format. Please enter as: DD MM YYYY\n");
+            while (getchar() != '\n');
+            continue;
+        }
+        while (getchar() != '\n');
+
+        if (!isValidDate(newAccount.birthDay, newAccount.birthMonth, newAccount.birthYear)) {
+            printf("Invalid date.\n");
             continue;
         }
 
-        readLine("Confirm password: ", password2, sizeof(password2));
-
-        if (strcmp(password1, password2) != 0) {
-            printf("Passwords do not match.\n");
+        if (calculateAge(newAccount.birthDay, newAccount.birthMonth, newAccount.birthYear) < 18) {
+            printf("You must be at least 18 years old.\n");
             continue;
         }
 
         break;
     }
 
-    strcpy(newAccount.password, password1);
-    newAccount.isActive = 1;
+    readLine("Enter Address: ", newAccount.address, sizeof(newAccount.address));
+
+    // =========================
+    // CONFIRM LOOP (NO RESET)
+    // =========================
+    while (1) {
+
+        printf("\n----- CONFIRM DETAILS -----\n");
+        printf("First Name: %s\n", newAccount.firstName);
+        printf("Last Name : %s\n", newAccount.lastName);
+        printf("DOB       : %02d/%02d/%04d\n",
+            newAccount.birthDay,
+            newAccount.birthMonth,
+            newAccount.birthYear);
+        printf("Address   : %s\n", newAccount.address);
+
+        char confirm;
+        printf("Confirm details? (Y/N): ");
+        scanf_s(" %c", &confirm, 1);
+        while (getchar() != '\n');
+
+        if (confirm == 'Y' || confirm == 'y') {
+            break;
+        }
+
+        // Only edit specific field, do NOT reset data
+        editMenu(&newAccount);
+    }
+
+    // =========================
+    // PASSWORD
+    // =========================
+    char password[50], confirmPassword[50];
+
+    while (1) {
+        readLine("Enter password: ", password, sizeof(password));
+
+        if (!isStrongPassword(password)) {
+            printf("Password must be at least 6 characters and contain letters and numbers.\n");
+            continue;
+        }
+
+        while (1) {
+            readLine("Confirm password: ", confirmPassword, sizeof(confirmPassword));
+
+            if (strcmp(password, confirmPassword) != 0) {
+                printf("Passwords do not match. Try confirming again.\n");
+                continue;
+            }
+            break;
+        }
+
+        break;
+    }
+
+    strcpy(newAccount.password, password);
 
     accounts[accountCount++] = newAccount;
 
     printf("\nAccount created successfully.\n");
     printf("Account Number: %d\n", newAccount.accountNumber);
     printf("Starting Balance: $%.2f\n", newAccount.balance);
+}
+
+/*
+Edit menu updates only selected field and preserves others
+*/
+static void editMenu(Account* acc) {
+
+    int choice;
+
+    printf("\n--- EDIT MENU ---\n");
+    printf("1) First Name\n");
+    printf("2) Last Name\n");
+    printf("3) Date of Birth\n");
+    printf("4) Address\n");
+    printf("5) Back\n");
+
+    printf("Choose option: ");
+    scanf_s("%d", &choice);
+    while (getchar() != '\n');
+
+    switch (choice) {
+
+    case 1:
+        printf("Current First Name: %s\n", acc->firstName);
+        readLine("Enter new First Name: ", acc->firstName, sizeof(acc->firstName));
+        break;
+
+    case 2:
+        printf("Current Last Name: %s\n", acc->lastName);
+        readLine("Enter new Last Name: ", acc->lastName, sizeof(acc->lastName));
+        break;
+
+    case 3:
+        printf("Enter DOB (DD MM YYYY - use spaces): ");
+
+        if (scanf_s("%d %d %d",
+            &acc->birthDay,
+            &acc->birthMonth,
+            &acc->birthYear) != 3) {
+
+            printf("Invalid format.\n");
+        }
+        while (getchar() != '\n');
+        break;
+
+    case 4:
+        printf("Current Address: %s\n", acc->address);
+        readLine("Enter new Address: ", acc->address, sizeof(acc->address));
+        break;
+
+    case 5:
+        return;
+    }
+}
+
+static int isValidDate(int d, int m, int y) {
+    if (y < 1900 || m < 1 || m > 12 || d < 1 || d > 31) return 0;
+    return 1;
+}
+
+static int calculateAge(int d, int m, int y) {
+    time_t t = time(NULL);
+    struct tm* now = localtime(&t);
+
+    int age = now->tm_year + 1900 - y;
+
+    if ((now->tm_mon + 1 < m) ||
+        (now->tm_mon + 1 == m && now->tm_mday < d)) {
+        age--;
+    }
+
+    return age;
 }
 
 int login(void) {
@@ -125,9 +265,6 @@ int deleteCurrentAccount(void) {
         printf("Incorrect password. Deletion cancelled.\n");
         return 0;
     }
-
-    char reason[100];
-    readLine("Reason for deletion: ", reason, sizeof(reason));
 
     accounts[currentAccountIndex].isActive = 0;
     currentAccountIndex = -1;
