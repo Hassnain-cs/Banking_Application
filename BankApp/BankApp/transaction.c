@@ -181,3 +181,37 @@ void showTransactionHistory(void) {
     }
 }
 
+/*
+FUNCTION: saveTransactionsToFile
+PURPOSE:
+    Saves all transactions so they persist after program closes
+
+FORMAT:
+    ownerAccountNumber|type|amount|timestamp|otherAccountNumber
+*/
+void saveTransactionsToFile(void) {
+
+    // Open file (auto-create if not exists)
+    FILE* f = fopen(TRANSACTIONS_FILE, "w");
+
+    if (!f) {
+        printf("Error: Could not save transactions.\n");
+        return;
+    }
+
+    // Loop through all transactions
+    for (int i = 0; i < transactionCount; i++) {
+
+        Transaction* t = &transactions[i];
+
+        fprintf(f, "%d|%d|%.2lf|%lld|%d\n",
+            t->ownerAccountNumber,
+            t->type,
+            t->amount,
+            (long long)t->timestamp,
+            t->otherAccountNumber
+        );
+    }
+
+    fclose(f);
+}
