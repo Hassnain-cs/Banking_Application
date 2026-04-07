@@ -4,6 +4,7 @@
 
 #include "file.h"
 #include "account.h"
+#include "transaction.h"
 
 
 
@@ -100,7 +101,31 @@ void loadAccountsFromFile(void) {
 
 
 
-void loadTransactionsFromFile(void) {}
-void saveTransactionsToFile(void) {}
+void loadTransactionsFromFile(void) {
+
+    FILE* f = fopen(TRANSACTIONS_FILE, "r");
+    if (!f) return;
+
+    char line[256];
+
+    while (fgets(line, sizeof(line), f)) {
+
+        Transaction t;
+
+        if (sscanf_s(line, "%d|%d|%lf|%lld|%d",
+            &t.ownerAccountNumber,
+            &t.type,
+            &t.amount,
+            &t.timestamp,
+            &t.otherAccountNumber) == 5) {
+
+            if (transactionCount < MAX_TRANSACTIONS) { 
+                transactions[transactionCount++] = t; 
+            }
+        }
+    }
+
+    fclose(f);
+}
 void loadContactsFromFile(void) {}
 void saveContactsToFile(void) {}

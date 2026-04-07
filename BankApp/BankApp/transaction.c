@@ -4,7 +4,6 @@
 #include "transaction.h"
 #include "account.h"
 
-#define MAX_TRANSACTIONS 1000
 
 // Stores all transactions performed in the system
 Transaction transactions[MAX_TRANSACTIONS];
@@ -191,7 +190,7 @@ PURPOSE:
 FORMAT:
     ownerAccountNumber|type|amount|timestamp|otherAccountNumber
 */
-void saveTransactionsToFile(void) {
+void saveTransactionsToFile(void) { //line 193
 
     // Open file (auto-create if not exists)
     FILE* f = fopen(TRANSACTIONS_FILE, "w");
