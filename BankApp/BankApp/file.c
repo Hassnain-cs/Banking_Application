@@ -63,8 +63,6 @@ void loadAccountsFromFile(void) {
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
         strncpy_s(a.streetNumber, sizeof(a.streetNumber), tok, _TRUNCATE);
-        if (!tok) continue;
-        strncpy_s(a.streetNumber, sizeof(a.streetNumber), tok, _TRUNCATE);
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
