@@ -185,15 +185,55 @@ void createAccount(void) {
         break;
     }
 
-    readLine("Enter Email Address: ", newAccount.email, sizeof(newAccount.email));
-    readLine("Enter Phone Number: ", newAccount.phone, sizeof(newAccount.phone));
+    // EMAIL VALIDATION LOOP
+    while (1) {
+        readLine("Enter Email Address: ", newAccount.email, sizeof(newAccount.email));
+        if (!isValidEmail(newAccount.email)) {
+            printf("Invalid email format.\n");
+            continue;
+        }
+        break;
+    }
+
+    // PHONE VALIDATION LOOP
+    while (1) {
+        readLine("Enter Phone Number (10 digits): ", newAccount.phone, sizeof(newAccount.phone));
+        if (!isValidPhone(newAccount.phone)) {
+            printf("Phone must be exactly 10 digits.\n");
+            continue;
+        }
+        break;
+    }
 
     printf("\n--- Address Details ---\n");
-    readLine("Street Number: ", newAccount.streetNumber, sizeof(newAccount.streetNumber));
+
+    // STREET NUMBER VALIDATION
+    while (1) {
+        readLine("Street Number: ", newAccount.streetNumber, sizeof(newAccount.streetNumber));
+        if (!isValidStreetNumber(newAccount.streetNumber)) {
+            printf("Street number must be numeric.\n");
+            continue;
+        }
+        break;
+    }
+
     readLine("Street Name  : ", newAccount.streetName, sizeof(newAccount.streetName));
     readLine("City         : ", newAccount.city, sizeof(newAccount.city));
+
+    // NEW FIELD (province)
+    readLine("Province     : ", newAccount.country, sizeof(newAccount.country));
+
+    // POSTAL CODE VALIDATION
+    while (1) {
+        readLine("Postal Code (A1A1A1): ", newAccount.postalCode, sizeof(newAccount.postalCode));
+        if (!isValidPostalCode(newAccount.postalCode)) {
+            printf("Invalid postal code format.\n");
+            continue;
+        }
+        break;
+    }
     readLine("Country      : ", newAccount.country, sizeof(newAccount.country));
-    readLine("Postal Code  : ", newAccount.postalCode, sizeof(newAccount.postalCode));
+   
 
     while (1) {
 
