@@ -28,13 +28,13 @@ int main(void) {
 
         int loggedIn = (getCurrentSessionAccountNumber() != -1);
 
-        showMenu(); // ✅ FIX: no argument
+        showMenu(); // FIX: no argument
 
         int choice;
 
         printf("Select option: ");
 
-        // ✅ FIXED VALIDATION (MATCHES MENU EXACTLY)
+        // FIXED VALIDATION (MATCHES MENU EXACTLY)
         if (!loggedIn) {
             while (scanf_s("%d", &choice) != 1 || choice < 1 || choice > 3) {
                 printf("Enter a number between 1 and 3: ");
@@ -57,10 +57,23 @@ int main(void) {
 
             switch (choice) {
 
-            case 1:
-                createAccount();
+            case 1: {
+                char confirm;
+
+                printf("Create new account? (Y/N): ");
+                scanf_s(" %c", &confirm, 1);
+                while (getchar() != '\n');
+
+                if (confirm == 'Y' || confirm == 'y') {
+                    createAccount();
+                }
+                else {
+                    printf("Operation cancelled.\n");
+                }
+
                 pauseForUser();
                 break;
+            }
 
             case 2:
                 if (!login()) {

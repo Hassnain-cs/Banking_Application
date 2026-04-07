@@ -308,11 +308,16 @@ int login(void) {
     int accNum;
     char password[50];
 
-    printf("Enter account number: ");
+    printf("Enter account number (0 to cancel): ");
     if (!fgets(line, sizeof(line), stdin)) return 0;
 
     if (sscanf(line, "%d", &accNum) != 1) {
-        printf("Invalid account number.\n");
+        printf("Invalid input.\n");
+        return 0;
+    }
+
+    if (accNum == 0) {
+        printf("Login cancelled.\n");
         return 0;
     }
 
@@ -345,69 +350,130 @@ void editCurrentAccount(void) {
 
     Account* acc = &accounts[currentAccountIndex];
 
-    printf("\n===== CURRENT ACCOUNT DETAILS =====\n");
-    printf("First Name : %s\n", acc->firstName);
-    printf("Last Name  : %s\n", acc->lastName);
-    printf("City       : %s\n", acc->city);
-    printf("===================================\n");
-
     int choice;
-    int updated = 0; // TRACK IF ANY CHANGE WAS MADE
+    int updated = 0;
 
     while (1) {
 
+        printf("\n========= CURRENT DETAILS =========\n");
+        printf("First Name : %s\n", acc->firstName);
+        printf("Last Name  : %s\n", acc->lastName);
+        printf("DOB        : %02d/%02d/%04d\n", acc->birthDay, acc->birthMonth, acc->birthYear);
+        printf("Email      : %s\n", acc->email);
+        printf("Phone      : %s\n", acc->phone);
+        printf("Address    : %s %s, %s, %s, %s\n",
+            acc->streetNumber,
+            acc->streetName,
+            acc->city,
+            acc->country,
+            acc->postalCode);
+        printf("===================================\n");
+
         printf("\n--- EDIT MENU ---\n");
-        printf("1) Edit First Name\n");
-        printf("2) Edit Last Name\n");
-        printf("3) Edit City\n");
-        printf("4) Edit Password\n");
-        printf("7) Back\n");
+        printf("1) First Name\n");
+        printf("2) Last Name\n");
+        printf("3) DOB\n");
+        printf("4) Email\n");
+        printf("5) Phone\n");
+        printf("6) Address\n");
+        printf("7) Password\n");
+        printf("0) Back\n");
 
         printf("Choose option: ");
 
         if (scanf_s("%d", &choice) != 1) {
-            printf("Invalid input.\n");
             while (getchar() != '\n');
             continue;
         }
         while (getchar() != '\n');
 
-        if (choice == 7) {
+        if (choice == 0) {
             if (updated) {
                 saveAccountsToFile();
                 printf("Account updated successfully.\n");
             }
             else {
-                printf("No changes made.\n"); // FIXED FAKE MESSAGE
+                printf("No changes made.\n");
             }
             return;
         }
 
-        if (choice == 1) {
-            printf("Enter new first name: ");
-            fgets(acc->firstName, sizeof(acc->firstName), stdin);
-            acc->firstName[strcspn(acc->firstName, "\n")] = 0;
+        switch (choice) {
+
+        case 1:
+            readLine("New First Name: ", acc->firstName, sizeof(acc->firstName));
             updated = 1;
-        }
-        else if (choice == 2) {
-            printf("Enter new last name: ");
-            fgets(acc->lastName, sizeof(acc->lastName), stdin);
-            acc->lastName[strcspn(acc->lastName, "\n")] = 0;
+            break;
+
+        case 2:
+            readLine("New Last Name: ", acc->lastName, sizeof(acc->lastName));
             updated = 1;
-        }
-        else if (choice == 3) {
-            printf("Enter new city: ");
-            fgets(acc->city, sizeof(acc->city), stdin);
-            acc->city[strcspn(acc->city, "\n")] = 0;
+            break;
+
+        case 3:
+            while (1) {
+                printf("Enter DOB (DD MM YYYY) (0 to cancel): ");
+                if (scanf("%d %d %d", &acc->birthDay, &acc->birthMonth, &acc->birthYear) != 3) {
+                    while (getchar() != '\n');
+                    continue;
+                }
+                while (getchar() != '\n');
+
+                if (acc->birthDay == 0) break;
+
+                if (!isValidDate(acc->birthDay, acc->birthMonth, acc->birthYear)) {
+                    printf("Invalid date.\n");
+                    continue;
+                }
+                break;
+            }
             updated = 1;
-        }
-        else if (choice == 4) {
-            printf("Enter new password: ");
-            fgets(acc->password, sizeof(acc->password), stdin);
-            acc->password[strcspn(acc->password, "\n")] = 0;
+            break;
+
+        case 4:
+            while (1) {
+                readLine("New Email (0 to cancel): ", acc->email, sizeof(acc->email));
+                if (strcmp(acc->email, "0") == 0) break;
+                if (!isValidEmail(acc->email)) {
+                    printf("Invalid email.\n");
+                    continue;
+                }
+                updated = 1;
+                break;
+            }
+            break;
+
+        case 5:
+            while (1) {
+                readLine("New Phone (10 digits, 0 to cancel): ", acc->phone, sizeof(acc->phone));
+                if (strcmp(acc->phone, "0") == 0) break;
+                if (!isValidPhone(acc->phone)) {
+                    printf("Invalid phone.\n");
+                    continue;
+                }
+                updated = 1;
+                break;
+            }
+            break;
+
+        case 6:
+            readLine("Street Number (0 to cancel): ", acc->streetNumber, sizeof(acc->streetNumber));
+            if (strcmp(acc->streetNumber, "0") == 0) break;
+
+            readLine("Street Name: ", acc->streetName, sizeof(acc->streetName));
+            readLine("City: ", acc->city, sizeof(acc->city));
+            readLine("Province: ", acc->country, sizeof(acc->country));
+            readLine("Postal Code: ", acc->postalCode, sizeof(acc->postalCode));
+
             updated = 1;
-        }
-        else {
+            break;
+
+        case 7:
+            readPassword("New Password: ", acc->password, sizeof(acc->password));
+            updated = 1;
+            break;
+
+        default:
             printf("Invalid option.\n");
         }
     }
@@ -424,6 +490,16 @@ int deleteCurrentAccount(void) {
         return 0;
     }
 
+    char confirm;
+    printf("Are you sure you want to delete? (Y/N): ");
+    scanf_s(" %c", &confirm, 1);
+    while (getchar() != '\n');
+
+    if (confirm == 'N' || confirm == 'n') {
+        printf("Deletion cancelled.\n");
+        return 0;
+    }
+
     char password[50];
     readPassword("Confirm password: ", password, sizeof(password));
 
@@ -434,6 +510,8 @@ int deleteCurrentAccount(void) {
 
     accounts[currentAccountIndex].isActive = 0;
     currentAccountIndex = -1;
+
+    saveAccountsToFile();
 
     printf("Account deleted.\n");
     return 1;
