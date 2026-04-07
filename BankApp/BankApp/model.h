@@ -6,11 +6,10 @@
 
 #define MAX_NAME        25
 #define MAX_PASSWORD    16
-#define MAX_NICKNAME    16
-#define MAX_ADDRESS     50
 #define MAX_EMAIL       50
-#define MAX_PHONE       15
-#define MAX_POSTAL      10
+#define MAX_PHONE       20
+#define MAX_FIELD       50
+#define MAX_NICKNAME    16
 
 typedef enum {
     TX_DEPOSIT = 1,
@@ -25,23 +24,23 @@ typedef struct {
     char firstName[MAX_NAME];
     char lastName[MAX_NAME];
 
-    int  birthDay;
-    int  birthMonth;
-    int  birthYear;
-
-    char streetNumber[10];
-    char streetName[MAX_ADDRESS];
-    char city[MAX_ADDRESS];
-    char country[MAX_ADDRESS];
-    char postalCode[MAX_POSTAL];
+    int birthDay;
+    int birthMonth;
+    int birthYear;
 
     char email[MAX_EMAIL];
     char phone[MAX_PHONE];
 
+    // Structured Address
+    char streetNumber[MAX_FIELD];
+    char streetName[MAX_FIELD];
+    char city[MAX_FIELD];
+    char country[MAX_FIELD];
+    char postalCode[MAX_FIELD];
+
     char password[MAX_PASSWORD];
     double balance;
     int  isActive;
-
 } Account;
 
 typedef struct {
