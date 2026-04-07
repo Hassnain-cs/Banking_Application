@@ -343,11 +343,74 @@ void editCurrentAccount(void) {
         return;
     }
 
-    editMenu(&accounts[currentAccountIndex]);
+    Account* acc = &accounts[currentAccountIndex];
 
-    saveAccountsToFile(); 
+    printf("\n===== CURRENT ACCOUNT DETAILS =====\n");
+    printf("First Name : %s\n", acc->firstName);
+    printf("Last Name  : %s\n", acc->lastName);
+    printf("City       : %s\n", acc->city);
+    printf("===================================\n");
 
-    printf("Account updated successfully.\n");
+    int choice;
+    int updated = 0; // TRACK IF ANY CHANGE WAS MADE
+
+    while (1) {
+
+        printf("\n--- EDIT MENU ---\n");
+        printf("1) Edit First Name\n");
+        printf("2) Edit Last Name\n");
+        printf("3) Edit City\n");
+        printf("4) Edit Password\n");
+        printf("7) Back\n");
+
+        printf("Choose option: ");
+
+        if (scanf_s("%d", &choice) != 1) {
+            printf("Invalid input.\n");
+            while (getchar() != '\n');
+            continue;
+        }
+        while (getchar() != '\n');
+
+        if (choice == 7) {
+            if (updated) {
+                saveAccountsToFile();
+                printf("Account updated successfully.\n");
+            }
+            else {
+                printf("No changes made.\n"); // FIXED FAKE MESSAGE
+            }
+            return;
+        }
+
+        if (choice == 1) {
+            printf("Enter new first name: ");
+            fgets(acc->firstName, sizeof(acc->firstName), stdin);
+            acc->firstName[strcspn(acc->firstName, "\n")] = 0;
+            updated = 1;
+        }
+        else if (choice == 2) {
+            printf("Enter new last name: ");
+            fgets(acc->lastName, sizeof(acc->lastName), stdin);
+            acc->lastName[strcspn(acc->lastName, "\n")] = 0;
+            updated = 1;
+        }
+        else if (choice == 3) {
+            printf("Enter new city: ");
+            fgets(acc->city, sizeof(acc->city), stdin);
+            acc->city[strcspn(acc->city, "\n")] = 0;
+            updated = 1;
+        }
+        else if (choice == 4) {
+            printf("Enter new password: ");
+            fgets(acc->password, sizeof(acc->password), stdin);
+            acc->password[strcspn(acc->password, "\n")] = 0;
+            updated = 1;
+        }
+        else {
+            printf("Invalid option.\n");
+        }
+    }
 }
 
 
