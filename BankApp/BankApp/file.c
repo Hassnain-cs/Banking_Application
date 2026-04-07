@@ -62,7 +62,26 @@ void loadAccountsFromFile(void) {
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
-        strncpy_s(a.address, sizeof(a.address), tok, _TRUNCATE);
+        // FIX: read each address field separately
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.streetNumber, sizeof(a.streetNumber), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.streetName, sizeof(a.streetName), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.city, sizeof(a.city), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.country, sizeof(a.country), tok, _TRUNCATE);
+
+        tok = strtok_s(NULL, "|", &ctx);
+        if (!tok) continue;
+        strncpy_s(a.postalCode, sizeof(a.postalCode), tok, _TRUNCATE);
 
         tok = strtok_s(NULL, "|", &ctx);
         if (!tok) continue;
@@ -102,7 +121,21 @@ void saveAccountsToFile(void) {
             a->birthDay,
             a->birthMonth,
             a->birthYear,
-            a->address,
+            "%d|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%.2f|%d\n",
+            a->accountNumber,
+            a->firstName,
+            a->lastName,
+            a->birthDay,
+            a->birthMonth,
+            a->birthYear,
+            a->streetNumber,
+            a->streetName,
+            a->city,
+            a->country,
+            a->postalCode,
+            a->password,
+            a->balance,
+            a->isActive,
             a->password,
             a->balance,
             a->isActive

@@ -7,8 +7,8 @@
 #define MAX_TRANSACTIONS 1000
 
 // Stores all transactions performed in the system
-static Transaction transactions[MAX_TRANSACTIONS];
-static int transactionCount = 0;
+Transaction transactions[MAX_TRANSACTIONS];
+int transactionCount = 0;
 
 /*
 Handles depositing money and shows updated balance
@@ -143,7 +143,7 @@ void showBalance(void) {
 /*
 Displays transaction history
 */
-void showTransactionHistory(void) {
+void showTransactionHistory(void) { //LINE 146 
 
     int accNum = getCurrentSessionAccountNumber();
     if (accNum == -1) return;
@@ -151,10 +151,9 @@ void showTransactionHistory(void) {
     printf("Transaction History:\n");
 
     for (int i = 0; i < transactionCount; i++) {
-
         if (transactions[i].ownerAccountNumber == accNum) {
 
-			Account* other = findAccountByNumber(transactions[i].otherAccountNumber);
+            Account* other = findAccountByNumber(transactions[i].otherAccountNumber);
 
             const char* typeStr;
 
@@ -174,8 +173,10 @@ void showTransactionHistory(void) {
                     other->firstName,
                     other->lastName,
                     transactions[i].otherAccountNumber);
-
-            printf("%s: $%.2lf\n", typeStr, transactions[i].amount);
+            }
+            else {
+                printf("%s: $%.2lf\n", typeStr, transactions[i].amount);
+            }
         }
     }
 }

@@ -261,6 +261,3 @@ void transferMoney(void) {
         receiver->lastName,
         receiverNum);
 }
-
-
-
