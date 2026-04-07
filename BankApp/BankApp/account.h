@@ -1,6 +1,8 @@
 #pragma once
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
+// File where all accounts will be stored
+#define ACCOUNTS_FILE "accounts.txt"
 
 #include "model.h"
 
