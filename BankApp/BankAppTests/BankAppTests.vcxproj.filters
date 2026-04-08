@@ -21,6 +21,30 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DepositTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\account.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\transaction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\transfer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BankApp\validation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
