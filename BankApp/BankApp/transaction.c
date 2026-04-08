@@ -226,3 +226,11 @@ void depositToAccount(Account* acc, double amount) {
     acc->balance += amount;
 }
 
+void withdrawFromAccount(Account* acc, double amount) {
+    if (acc == NULL) return;
+    if (amount <= 0) return;
+    if (amount > acc->balance) return;
+
+    acc->balance -= amount;
+}
+
