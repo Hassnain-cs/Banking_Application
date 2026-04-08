@@ -216,3 +216,22 @@ void saveTransactionsToFile(void) { //line 193
 
     fclose(f);
 }
+
+void depositToAccount(Account* acc, double amount) {
+    if (acc == NULL) return;
+
+    // prevent invalid values
+    if (amount <= 0) return;
+
+    acc->balance += amount;
+}
+
+void withdrawFromAccount(Account* acc, double amount) {
+    if (acc == NULL) return;
+
+    if (amount <= 0) return;
+
+    if (amount > acc->balance) return;
+
+    acc->balance -= amount;
+}

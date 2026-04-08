@@ -18,7 +18,7 @@ static void readLine(const char* prompt, char* buffer, size_t size);
 static void readPassword(const char* prompt, char* buffer, int maxLen);
 static int accountNumberExists(int accountNumber);
 static int isStrongPassword(const char* password);
-// Proper date validation with month rules + leap year (THIS IS REAL VALIDATION NOW)
+// Proper date validation with month rules + leap year (THIS IS REAL VALIDATION)
 static int isValidDate(int d, int m, int y) {
 
     if (y < 1900 || m < 1 || m > 12 || d < 1)

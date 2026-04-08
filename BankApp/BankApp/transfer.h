@@ -15,5 +15,6 @@ void showContacts(void);
 
 // Transfer money between users
 void transferMoney(void);
+void transferBetweenAccounts(Account* from, Account* to, double amount);
 
 #endif

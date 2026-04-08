@@ -263,3 +263,14 @@ void transferMoney(void) {
         receiver->lastName,
         receiverNum);
 }
+
+void transferBetweenAccounts(Account* from, Account* to, double amount) {
+    if (from == NULL || to == NULL) return;
+
+    if (amount <= 0) return;
+
+    if (amount > from->balance) return;
+
+    from->balance -= amount;
+    to->balance += amount;
+}

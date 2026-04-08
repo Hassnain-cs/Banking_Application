@@ -20,5 +20,7 @@ void withdraw(void);
 void showBalance(void);
 void showTransactionHistory(void);
 void saveTransactionsToFile(void);   //(IMPORTANT)
+void depositToAccount(Account* acc, double amount);
+void withdrawFromAccount(Account* acc, double amount);
 
 #endif
