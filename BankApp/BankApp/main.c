@@ -238,3 +238,9 @@ static void transactionMenu(void) {
         }
     }
 }
+
+//We tested full user journey from 
+// account creation to transaction and persistence.
+// We also tested edge cases like invalid inputs,
+// insufficient funds, and account deletion. All modules
+// work together as expected.
