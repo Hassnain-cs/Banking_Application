@@ -234,3 +234,6 @@ void withdrawFromAccount(Account* acc, double amount) {
     acc->balance -= amount;
 }
 
+/* To check the connectivity of all modules
+   everything has been tested, from creation 
+   of account to login to transactions   */
