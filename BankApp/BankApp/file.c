@@ -17,7 +17,7 @@ void loadAccountsFromFile(void) {
     if (!f) {
         return;
     }
-
+    accountCount = 0;
     char line[512];
 
     while (fgets(line, sizeof(line), f)) {
