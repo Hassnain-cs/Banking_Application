@@ -1,3 +1,8 @@
+/*
+ * @file file.c
+ * @brief Implements saving and loading of accounts, transactions, and contacts
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,14 +12,21 @@
 #include "transaction.h"
 
 
+ /* ===============================================================
+  * ACCOUNT FILE OPERATIONS
+  * =============================================================== */
 
-/*
-Loads account data from file and reconstructs Account structures
-*/
+  /**
+   * @brief Loads all accounts from accounts.txt into memory
+   *
+   * File format: accountNumber|firstName|lastName|birthDay|birthMonth|birthYear|
+   * streetNumber|streetName|city|province|postalCode|password|balance|isActive
+   */
+
 void loadAccountsFromFile(void) {
 
     FILE* f = fopen(ACCOUNTS_FILE, "r");
-    if (!f) {
+	if (!f) { // No file exists yet, first time running program, just start with empty accounts list
         return;
     }
     accountCount = 0;
@@ -37,11 +49,11 @@ void loadAccountsFromFile(void) {
         char* ctx = NULL;
 
         // Parse data in correct order
-        char* tok = strtok_s(line, "|", &ctx);
+		char* tok = strtok_s(line, "|", &ctx); // accountNumber
         if (!tok) continue;
         a.accountNumber = atoi(tok);
 
-        tok = strtok_s(NULL, "|", &ctx);
+		tok = strtok_s(NULL, "|", &ctx); // firstName
         if (!tok) continue;
         strncpy_s(a.firstName, sizeof(a.firstName), tok, _TRUNCATE);
 
@@ -99,6 +111,14 @@ void loadAccountsFromFile(void) {
     fclose(f);
 }
 
+
+/* ===============================================================
+ * TRANSACTION FILE OPERATIONS
+ * =============================================================== */
+
+ /*
+  * @brief Loads all transactions from transactions.txt into memory
+  */
 
 
 void loadTransactionsFromFile(void) {
